@@ -1,0 +1,22 @@
+{
+  "name": "Jurnal Trading Pro",
+  "short_name": "Jurnal Trading",
+  "description": "Jurnal trading offline-first",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#121418",
+  "theme_color": "#2962ff",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
