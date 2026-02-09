@@ -1,0 +1,3835 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal Trading Pro</title>
+    <style>
+        :root {
+            --bg-dark: #121418;
+            --bg-card: #1e222d;
+            --bg-hover: #2a303c;
+            --text-main: #e0e0e0;
+            --text-muted: #8b8e95;
+            --accent: #2962ff;
+            --profit: #00c853;
+            --loss: #ff3d00;
+            --border: #2a2e39;
+            --buy-color: #00c853;
+            --sell-color: #ff3d00;
+            --warning: #ff9800;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            line-height: 1.5;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Journal Manager Styles */
+        .journal-manager {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .journal-select-container {
+            position: relative;
+            min-width: 200px;
+        }
+
+        .journal-select {
+            width: 100%;
+            padding: 8px 30px 8px 12px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            appearance: none;
+        }
+
+        .journal-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .journal-select-arrow {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .journal-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-journal {
+            padding: 8px 12px;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-journal:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--accent);
+        }
+
+        .btn-journal-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn-journal-primary:hover {
+            background-color: #1e54e0;
+            border-color: #1e54e0;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .journal-manager {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        /* Input Form - DIUBAH: kolom Risk:Reward dihapus */
+        .form-row {
+            display: grid;
+            grid-template-columns: 80px 70px 100px 70px 90px 80px 110px 110px 120px 110px 120px 100px 80px 100px;
+            /* 14 kolom setelah menghapus Risk:Reward */
+            gap: 8px;
+            align-items: end;
+        }
+
+        @media (max-width: 1400px) {
+            .form-row {
+                grid-template-columns: repeat(8, 1fr);
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+            
+            .form-group {
+                min-width: 120px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 0;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px 10px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        button.btn-primary {
+            padding: 8px 12px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+
+        button.btn-primary:hover {
+            background-color: #1e54e0;
+        }
+
+        /* Stats Cards */
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .text-profit { color: var(--profit); }
+        .text-loss { color: var(--loss); }
+        .text-warning { color: var(--warning); }
+        .text-neutral { color: var(--text-muted); }
+        .text-buy { color: var(--buy-color); }
+        .text-sell { color: var(--sell-color); }
+
+        /* Warning untuk Range SL */
+        .input-warning {
+            border-color: var(--warning) !important;
+            animation: pulse-warning 1s infinite;
+        }
+
+        @keyframes pulse-warning {
+            0%, 100% { border-color: var(--warning); }
+            50% { border-color: var(--loss); }
+        }
+
+        /* Calendar Header */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .calendar-nav-btn {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .calendar-nav-btn:hover {
+            background: var(--bg-hover);
+        }
+        
+        .calendar-title {
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        /* Calendar Grid */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background-color: var(--bg-dark);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            position: relative;
+            cursor: default;
+            transition: transform 0.1s;
+            padding: 2px;
+            overflow: hidden;
+        }
+
+        .calendar-day:hover {
+            transform: scale(1.1);
+            z-index: 2;
+        }
+
+        .day-number {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .day-stats {
+            font-size: 0.6rem;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .day-transaction-count {
+            font-weight: bold;
+            margin-bottom: 1px;
+        }
+
+        .day-profit { 
+            background-color: rgba(0, 200, 83, 0.15); 
+            border: 1px solid rgba(0, 200, 83, 0.3);
+        }
+        .day-loss { 
+            background-color: rgba(255, 61, 0, 0.15); 
+            border: 1px solid rgba(255, 61, 0, 0.3);
+        }
+        .day-neutral { 
+            border: 1px solid var(--border); 
+            color: var(--text-muted); 
+        }
+        .day-empty { 
+            background-color: transparent; 
+            border: none; 
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            display: none;
+            z-index: 10;
+            pointer-events: none;
+            text-align: center;
+            min-width: 150px;
+        }
+        .calendar-day:hover .tooltip { display: block; }
+
+        /* Chart Area */
+        .chart-container {
+            width: 100%;
+            height: 250px;
+            position: relative;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            padding: 10px;
+        }
+        
+        svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        
+        .chart-line {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 2;
+        }
+        
+        .chart-area {
+            fill: rgba(41, 98, 255, 0.1);
+            stroke: none;
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        tr:hover {
+            background-color: var(--bg-hover);
+        }
+
+        /* PERUBAHAN: Styling untuk kolom tanggal dan jam */
+        #tradeTable td:first-child {
+            color: var(--text-main);
+        }
+
+        #tradeTable td:nth-child(2) {
+            color: var(--text-main);
+        }
+
+        /* Tombol Edit */
+        .edit-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .edit-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Notification */
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transform: translateY(150%);
+            transition: transform 0.3s ease-out;
+            z-index: 100;
+        }
+        #notification.show {
+            transform: translateY(0);
+        }
+        
+        /* Komisi input styling */
+        .input-with-prefix {
+            display: flex;
+            position: relative;
+        }
+        
+        .prefix {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-right: none;
+            border-radius: 4px 0 0 4px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            z-index: 2;
+        }
+        
+        .input-with-prefix input {
+            padding-left: 35px;
+            width: 100%;
+        }
+        
+        .input-with-prefix:focus-within .prefix {
+            border-color: var(--accent);
+            border-right: none;
+        }
+        
+        .input-with-prefix:focus-within input {
+            border-color: var(--accent);
+            border-left-color: var(--border);
+        }
+        
+        .input-with-prefix input:focus {
+            border-left-color: var(--accent);
+        }
+        
+        /* Hari kalender header */
+        .day-header {
+            text-align: center;
+            padding: 5px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Modal Edit - PERBAIKAN SCROLL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            padding: 0;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px 15px 25px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .close-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        .modal-body {
+            padding: 20px 25px;
+            overflow-y: auto;
+            flex: 1;
+            max-height: calc(85vh - 130px);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            padding: 15px 25px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-card);
+            flex-shrink: 0;
+        }
+
+        /* Scrollbar styling untuk modal */
+        .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+            border-radius: 3px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #1e54e0;
+        }
+
+        /* Untuk Firefox */
+        .modal-body {
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--bg-dark);
+        }
+
+        .btn-danger {
+            background-color: var(--loss);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            flex: 1;
+            transition: background 0.2s;
+        }
+
+        .btn-danger:hover {
+            background-color: #e03500;
+        }
+
+        .btn-secondary {
+            background-color: var(--text-muted);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            flex: 1;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7a7d85;
+        }
+
+        /* Badge Direction */
+        .direction-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            min-width: 45px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .buy-badge {
+            background-color: rgba(0, 200, 83, 0.2);
+            color: var(--buy-color);
+            border: 1px solid rgba(0, 200, 83, 0.4);
+        }
+
+        .sell-badge {
+            background-color: rgba(255, 61, 0, 0.2);
+            color: var(--sell-color);
+            border: 1px solid rgba(255, 61, 0, 0.4);
+        }
+        
+        /* Input Range SL/TP dengan tombol reset */
+        .range-sl-container,
+        .range-tp-container {
+            position: relative;
+        }
+        
+        .range-sl-container input,
+        .range-tp-container input {
+            padding-right: 30px;
+        }
+        
+        .range-sl-reset,
+        .range-tp-reset {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .range-sl-reset:hover,
+        .range-tp-reset:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-main);
+        }
+        
+        /* Responsif tabel */
+        @media (max-width: 1200px) {
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 8px 6px;
+            }
+        }
+        
+        /* Responsif modal */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                max-height: 90vh;
+            }
+            
+            .modal-body {
+                max-height: calc(90vh - 130px);
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .btn-danger, .btn-secondary, .btn-primary {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .modal-body {
+                padding: 15px;
+            }
+            
+            .modal-header, .modal-actions {
+                padding: 15px;
+            }
+        }
+        
+        /* Tombol reset data */
+        .reset-btn {
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .reset-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--loss);
+            color: var(--loss);
+        }
+        
+        /* Modal Journal Manager */
+        .journal-modal {
+            max-width: 500px;
+        }
+        
+        .journal-list {
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--bg-dark);
+        }
+        
+        .journal-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .journal-item:last-child {
+            border-bottom: none;
+        }
+        
+        .journal-item.active {
+            background-color: rgba(41, 98, 255, 0.1);
+            border-left: 3px solid var(--accent);
+        }
+        
+        .journal-item-name {
+            font-weight: 500;
+        }
+        
+        .journal-item-stats {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .journal-item-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-small {
+            padding: 3px 8px;
+            font-size: 0.75rem;
+            border-radius: 3px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-main);
+        }
+        
+        .btn-small:hover {
+            background: var(--bg-hover);
+        }
+        
+        .btn-small-danger {
+            color: var(--loss);
+            border-color: var(--loss);
+        }
+        
+        .btn-small-danger:hover {
+            background: rgba(255, 61, 0, 0.1);
+        }
+        
+        .journal-empty {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        
+        .input-with-icon input {
+            padding-left: 35px;
+        }
+        
+        /* PERUBAHAN: Styling untuk input jam dengan label WIB - PERBAIKAN PADDING */
+        .time-input-wrapper {
+            position: relative;
+        }
+        
+        .time-wib-label {
+            position: absolute;
+            right: 8px; /* Diubah dari 10px menjadi 8px */
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.75rem; /* Diperkecil sedikit */
+            pointer-events: none;
+            padding-right: 0; /* Hapus padding kanan */
+            white-space: nowrap;
+        }
+        
+        /* TAMBAHAN: 3 spasi setelah WIB - DIPERTAHANKAN */
+        .time-wib-label::after {
+            content: "WIB\00a0\00a0\00a0"; /* 3 spasi setelah WIB */
+            margin-left: 0;
+        }
+        
+        .time-input {
+            padding-right: 45px !important; /* Diubah dari 55px menjadi 45px */
+        }
+        
+        /* PERUBAHAN: Warna kolom jam diubah menjadi #e0e0e0 (sama seperti kolom tanggal) */
+        .time-cell {
+            font-size: 0.85rem;
+            color: #e0e0e0;
+        }
+        
+        .time-wib {
+            color: #e0e0e0;
+            font-size: 0.75rem;
+            margin-left: 2px;
+        }
+        
+        /* CSS untuk Win Rate per Session */
+        .session-stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .session-stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .session-bar-chart {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 20px;
+            height: 250px;
+            position: relative;
+        }
+
+        .session-details {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .session-detail-item {
+            background: var(--bg-dark);
+            border-radius: 6px;
+            padding: 15px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .session-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-main);
+        }
+
+        .session-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+
+        .session-win-rate {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Styling untuk grafik batang */
+        .bar-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .bar-label {
+            min-width: 80px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .bar {
+            flex-grow: 1;
+            height: 30px;
+            background: var(--bg-hover);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+            min-width: 3px;
+        }
+
+        .bar-value {
+            min-width: 50px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* CSS untuk Correlation Analysis */
+        .correlation-container {
+            margin-top: 15px;
+        }
+
+        .time-analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .time-analysis-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .time-analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .session-hour-analysis {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .session-hour-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+            color: var(--text-main);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hour-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: transform 0.2s;
+        }
+
+        .hour-item:hover {
+            transform: translateX(5px);
+            background: var(--bg-hover);
+        }
+
+        .hour-time {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .hour-profit {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .hour-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: 5px;
+        }
+
+        .time-analysis-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+
+        /* Warna untuk tingkat profit */
+        .profit-high {
+            background: linear-gradient(90deg, rgba(0, 200, 83, 0.9), rgba(0, 200, 83, 0.6));
+            color: white;
+        }
+
+        .profit-medium {
+            background: linear-gradient(90deg, rgba(255, 152, 0, 0.9), rgba(255, 152, 0, 0.6));
+            color: white;
+        }
+
+        .profit-low {
+            background: linear-gradient(90deg, rgba(255, 61, 0, 0.9), rgba(255, 61, 0, 0.6));
+            color: white;
+        }
+
+        .profit-neutral {
+            background: var(--bg-hover);
+            color: var(--text-muted);
+        }
+
+        /* ============================================
+           PERBAIKAN UNTUK KOLOM TANGGAL DAN JAM
+           ============================================ */
+        
+        /* Perbaikan untuk input tanggal */
+        input[type="date"] {
+            padding-right: 5px !important;
+            padding-left: 8px !important;
+        }
+
+        /* Perbaikan untuk input jam */
+        .time-input {
+            padding-right: 45px !important;
+            padding-left: 8px !important;
+        }
+
+        /* Perbaikan untuk label WIB - kurangi padding dan atur ulang posisi */
+        .time-wib-label {
+            right: 8px !important;
+            padding: 0 !important;
+            background: transparent !important;
+            font-size: 0.75rem !important;
+        }
+
+        /* Pertahankan spasi tambahan setelah WIB karena sudah ada di JavaScript */
+        .time-wib-label::after {
+            content: "WIB\00a0\00a0\00a0" !important;
+            margin-left: 0 !important;
+        }
+
+        /* Perbaikan untuk modal edit */
+        #editDate {
+            padding-right: 5px !important;
+        }
+
+        #editTime.time-input {
+            padding-right: 45px !important;
+        }
+
+        /* Perbaikan khusus untuk input tanggal agar lebih lebar */
+        #date, #editDate {
+            min-width: 105px;
+        }
+
+        /* Perbaikan khusus untuk input jam agar lebih lebar */
+        #time, #editTime {
+            min-width: 90px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Jurnal Trading Pro</h1>
+        <div class="journal-manager">
+            <div class="journal-select-container">
+                <select id="journalSelect" class="journal-select">
+                    <option value="">Loading jurnal...</option>
+                </select>
+                <div class="journal-select-arrow">▼</div>
+            </div>
+            <div class="journal-actions">
+                <button class="btn-journal" onclick="showJournalManager()">Kelola Jurnal</button>
+                <button class="btn-journal btn-journal-primary" onclick="showNewJournalModal()">+ Jurnal Baru</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="grid-2">
+        <!-- Form Input -->
+        <section class="card">
+            <h2>Catat Transaksi Baru</h2>
+            <form id="tradeForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Pair</label>
+                        <input type="text" id="pair" placeholder="EURUSD" required style="text-transform: uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Lot</label>
+                        <input type="number" id="lot" step="0.01" min="0.01" placeholder="0.10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jam</label>
+                        <div class="time-input-wrapper">
+                            <input type="time" id="time" class="time-input" required>
+                            <!-- PERUBAHAN: Tambah 3 spasi setelah WIB -->
+                            <span class="time-wib-label"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Sesi</label>
+                        <select id="session">
+                            <option value="London">London</option>
+                            <option value="New York">New York</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Overlap">Overlap</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Direction</label>
+                        <select id="action" required>
+                            <option value="Buy">Buy</option>
+                            <option value="Sell">Sell</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga Entry</label>
+                        <input type="number" id="entryPrice" step="0.00001" placeholder="1.12345" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga SL</label>
+                        <input type="number" id="slPrice" step="0.00001" placeholder="1.12000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Range SL</label>
+                        <div class="range-sl-container">
+                            <input type="text" id="rangeSL" placeholder="Otomatis" required>
+                            <!-- TEKS PERINGATAN DIHAPUS -->
+                            <button type="button" class="range-sl-reset" id="resetRangeSL" title="Reset ke perhitungan otomatis">↺</button>
+                        </div>
+                    </div>
+                    <!-- TAMBAHAN: Harga TP dan Range TP -->
+                    <div class="form-group">
+                        <label>Harga TP</label>
+                        <input type="number" id="tpPrice" step="0.00001" placeholder="1.12500">
+                    </div>
+                    <div class="form-group">
+                        <label>Range TP</label>
+                        <div class="range-tp-container">
+                            <input type="text" id="rangeTP" placeholder="Otomatis">
+                            <!-- TEKS PERINGATAN DIHAPUS -->
+                            <button type="button" class="range-tp-reset" id="resetRangeTP" title="Reset ke perhitungan otomatis">↺</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Return ($)</label>
+                        <input type="number" id="profit" step="0.01" placeholder="P/L" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Komisi ($)</label>
+                        <div class="input-with-prefix">
+                            <span class="prefix">-$</span>
+                            <input type="text" id="commission" value="0" required placeholder="0,00">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Catatan</label>
+                        <input type="text" id="notes" placeholder="Catatan">
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn-primary" id="submitBtn" style="margin-top: 0;">Simpan</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Statistik Utama -->
+        <section class="card">
+            <h2>Ringkasan Kinerja - <span id="currentJournalName">Jurnal Utama</span></h2>
+            <div class="grid-2" style="margin-bottom: 20px;">
+                <div class="stat-item">
+                    <label>Net Profit</label>
+                    <div class="stat-value" id="statNetProfit">$0.00</div>
+                </div>
+                <div class="stat-item">
+                    <label>Win Rate</label>
+                    <div class="stat-value" id="statWinRate">0%</div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="stat-item" style="background: var(--bg-dark); padding: 10px; border-radius: 4px;">
+                    <label style="color: var(--loss);">Max Drawdown (R)</label>
+                    <div class="stat-value text-loss" id="statMaxDD">0R</div>
+                </div>
+                <div class="stat-item" style="background: var(--bg-dark); padding: 10px; border-radius: 4px;">
+                    <label style="color: var(--loss);">Max Consecutive Loss</label>
+                    <div class="stat-value text-loss" id="statMaxConsecutive">0 Trades</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Grafik & Kalender -->
+    <div class="grid-2">
+        <section class="card">
+            <h2>Kalender Bulanan</h2>
+            <div class="calendar-header">
+                <div class="calendar-nav">
+                    <button class="calendar-nav-btn" id="prevMonth">‹</button>
+                    <button class="calendar-nav-btn" id="todayBtn">H</button>
+                    <button class="calendar-nav-btn" id="nextMonth">›</button>
+                </div>
+                <div class="calendar-title" id="calendarTitle">Bulan Tahun</div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <div class="day-header">Sen</div>
+                <div class="day-header">Sel</div>
+                <div class="day-header">Rab</div>
+                <div class="day-header">Kam</div>
+                <div class="day-header">Jum</div>
+                <div class="day-header">Sab</div>
+                <div class="day-header">Min</div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Pertumbuhan Balance</h2>
+            <div class="chart-container" id="chartContainer">
+                <svg viewBox="0 0 100 50" preserveAspectRatio="none">
+                    <path id="chartAreaPath" class="chart-area" d="" />
+                    <path id="chartLinePath" class="chart-line" d="" />
+                </svg>
+            </div>
+        </section>
+    </div>
+
+    <!-- Win Rate per Session & Correlation Analysis -->
+    <div class="grid-2">
+        <section class="card">
+            <h2>Win Rate per Session</h2>
+            <div class="session-stats-container">
+                <div class="session-bar-chart" id="sessionBarChart">
+                    <!-- Grafik batang akan di-generate oleh JavaScript -->
+                </div>
+                <div class="session-details" id="sessionDetails">
+                    <!-- Detail setiap sesi akan diisi oleh JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Correlation Analysis - Profit per Jam</h2>
+            <div class="correlation-container">
+                <div class="time-analysis-grid" id="timeAnalysisGrid">
+                    <!-- Analisis jam akan diisi oleh JavaScript -->
+                </div>
+                <div class="time-analysis-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #00c853;"></span>
+                        <span>Profit Tinggi</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #ff9800;"></span>
+                        <span>Profit Sedang</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #ff3d00;"></span>
+                        <span>Loss</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Tabel Riwayat -->
+    <section class="card">
+        <h2>Riwayat Transaksi - <span id="tableJournalName">Jurnal Utama</span></h2>
+        <div class="table-responsive">
+            <table id="tradeTable">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Jam</th>
+                        <th>Pair</th>
+                        <th>Sesi</th>
+                        <th>Direction</th>
+                        <th>Lot</th>
+                        <th>Harga Entry</th>
+                        <th>Harga SL</th>
+                        <th>Harga TP</th> <!-- DIPINDAHKAN ke sini -->
+                        <th>Range SL</th>
+                        <th>Range TP</th>
+                        <!-- DIHAPUS: Kolom Risk:Reward -->
+                        <th>Return ($)</th>
+                        <th>Komisi ($)</th>
+                        <th>Net ($)</th>
+                        <th>R Value</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div id="emptyState" style="text-align: center; padding: 20px; color: var(--text-muted); display: none;">
+            Belum ada data transaksi.
+        </div>
+    </section>
+</div>
+
+<!-- Modal Edit -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Edit Transaksi</h3>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Pair</label>
+                        <input type="text" id="editPair" required style="text-transform: uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Lot</label>
+                        <input type="number" id="editLot" step="0.01" min="0.01" required>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Tanggal Entry</label>
+                        <input type="date" id="editDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Jam</label>
+                        <div class="time-input-wrapper">
+                            <input type="time" id="editTime" class="time-input" required>
+                            <!-- PERUBAHAN: Tambah 3 spasi setelah WIB -->
+                            <span class="time-wib-label"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Sesi Trading</label>
+                        <select id="editSession">
+                            <option value="London">London</option>
+                            <option value="New York">New York</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Overlap">Overlap (LON/NY)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Direction</label>
+                        <select id="editAction" required>
+                            <option value="Buy">Buy</option>
+                            <option value="Sell">Sell</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Harga Entry</label>
+                        <input type="number" id="editEntryPrice" step="0.00001" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga SL</label>
+                        <input type="number" id="editSlPrice" step="0.00001" required>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Range SL</label>
+                        <div class="range-sl-container">
+                            <input type="text" id="editRangeSL" required>
+                            <!-- TEKS PERINGATAN DIHAPUS -->
+                            <button type="button" class="range-sl-reset" id="resetEditRangeSL" title="Reset ke perhitungan otomatis">↺</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Harga TP</label>
+                        <input type="number" id="editTpPrice" step="0.00001">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Range TP</label>
+                        <div class="range-tp-container">
+                            <input type="text" id="editRangeTP" placeholder="Otomatis">
+                            <!-- TEKS PERINGATAN DIHAPUS -->
+                            <button type="button" class="range-tp-reset" id="resetEditRangeTP" title="Reset ke perhitungan otomatis">↺</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Return ($)</label>
+                        <input type="number" id="editProfit" step="0.01" required>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Komisi ($)</label>
+                        <div class="input-with-prefix">
+                            <span class="prefix">-$</span>
+                            <input type="text" id="editCommission" required placeholder="0,00">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Catatan</label>
+                        <input type="text" id="editNotes" style="width: 100%;">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-danger" onclick="deleteTrade()">Hapus Transaksi</button>
+            <button type="button" class="btn-secondary" onclick="closeModal()">Batal</button>
+            <button type="submit" form="editForm" class="btn-primary">Simpan Perubahan</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Kelola Jurnal -->
+<div class="modal-overlay" id="journalManagerModal">
+    <div class="modal-content journal-modal">
+        <div class="modal-header">
+            <h3 class="modal-title">Kelola Jurnal</h3>
+            <button class="close-btn" onclick="closeJournalManagerModal()">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="journal-list" id="journalList">
+                <!-- Daftar jurnal akan diisi oleh JavaScript -->
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <h4 style="margin-bottom: 10px; color: var(--text-muted);">Buat Jurnal Baru</h4>
+                <div class="input-with-icon">
+                    <span class="input-icon">📝</span>
+                    <input type="text" id="newJournalNameInput" placeholder="Nama jurnal baru..." style="width: 100%;">
+                </div>
+                <button class="btn-primary" onclick="createNewJournalFromManager()" style="width: 100%; margin-top: 10px;">Buat Jurnal Baru</button>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeJournalManagerModal()">Tutup</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Buat Jurnal Baru -->
+<div class="modal-overlay" id="newJournalModal">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Jurnal Baru</h3>
+            <button class="close-btn" onclick="closeNewJournalModal()">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <form id="newJournalForm">
+                <div class="form-group">
+                    <label>Nama Jurnal</label>
+                    <input type="text" id="newJournalName" required placeholder="Contoh: Trading Forex 2024" style="width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label>Deskripsi (opsional)</label>
+                    <textarea id="newJournalDesc" rows="3" placeholder="Deskripsi jurnal..." style="width: 100%; padding: 8px; background: var(--bg-dark); border: 1px solid var(--border); color: var(--text-main); border-radius: 4px;"></textarea>
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeNewJournalModal()">Batal</button>
+            <button type="submit" form="newJournalForm" class="btn-primary">Buat Jurnal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="notification">Data berhasil disimpan!</div>
+
+<script>
+    // ============================================
+    // STATE MANAGEMENT UNTUK MULTI-JURNAL
+    // ============================================
+    
+    // Struktur data untuk multi-jurnal
+    const journalData = {};
+    
+    let activeJournalId = null;
+    let trades = []; // Trades untuk jurnal aktif
+    
+    // State untuk kalender
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    
+    // State untuk peringatan Range SL
+    let rangeSLWarningShown = false;
+    let editRangeSLWarningShown = false;
+    
+    // State untuk peringatan Range TP
+    let rangeTPWarningShown = false;
+    let editRangeTPWarningShown = false;
+    
+    // State untuk tracking typing
+    let isTypingRangeSL = false;
+    let isTypingEditRangeSL = false;
+    let isTypingRangeTP = false;
+    let isTypingEditRangeTP = false;
+    let typingTimer = null;
+    const TYPING_DELAY = 800; // ms - waktu tunggu setelah user berhenti mengetik
+
+    // ============================================
+    // DOM ELEMENTS
+    // ============================================
+    
+    const form = document.getElementById('tradeForm');
+    const editForm = document.getElementById('editForm');
+    const newJournalForm = document.getElementById('newJournalForm');
+    
+    // Modals
+    const editModal = document.getElementById('editModal');
+    const journalManagerModal = document.getElementById('journalManagerModal');
+    const newJournalModal = document.getElementById('newJournalModal');
+    
+    // Table
+    const tableBody = document.querySelector('#tradeTable tbody');
+    const emptyState = document.getElementById('emptyState');
+    const notification = document.getElementById('notification');
+    
+    // Input Elements
+    const entryPriceInput = document.getElementById('entryPrice');
+    const slPriceInput = document.getElementById('slPrice');
+    const rangeSLInput = document.getElementById('rangeSL');
+    const resetRangeSLBtn = document.getElementById('resetRangeSL');
+    
+    const editEntryPriceInput = document.getElementById('editEntryPrice');
+    const editSlPriceInput = document.getElementById('editSlPrice');
+    const editRangeSLInput = document.getElementById('editRangeSL');
+    const resetEditRangeSLBtn = document.getElementById('resetEditRangeSL');
+    
+    // TAMBAHAN: Input Elements untuk TP
+    const tpPriceInput = document.getElementById('tpPrice');
+    const rangeTPInput = document.getElementById('rangeTP');
+    const resetRangeTPBtn = document.getElementById('resetRangeTP');
+    
+    const editTpPriceInput = document.getElementById('editTpPrice');
+    const editRangeTPInput = document.getElementById('editRangeTP');
+    const resetEditRangeTPBtn = document.getElementById('resetEditRangeTP');
+    
+    // Stats Elements
+    const statNetProfit = document.getElementById('statNetProfit');
+    const statWinRate = document.getElementById('statWinRate');
+    const statMaxDD = document.getElementById('statMaxDD');
+    const statMaxConsecutive = document.getElementById('statMaxConsecutive');
+    const calendarGrid = document.getElementById('calendarGrid');
+    const calendarTitle = document.getElementById('calendarTitle');
+    const chartLinePath = document.getElementById('chartLinePath');
+    const chartAreaPath = document.getElementById('chartAreaPath');
+    
+    // Journal Elements
+    const journalSelect = document.getElementById('journalSelect');
+    const currentJournalName = document.getElementById('currentJournalName');
+    const tableJournalName = document.getElementById('tableJournalName');
+    const journalList = document.getElementById('journalList');
+    const newJournalNameInput = document.getElementById('newJournalName');
+    const newJournalDesc = document.getElementById('newJournalDesc');
+    const newJournalModalName = document.getElementById('newJournalNameInput');
+    
+    // Kalender navigation
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+    const todayBtn = document.getElementById('todayBtn');
+    
+    // Fitur baru
+    const sessionBarChart = document.getElementById('sessionBarChart');
+    const sessionDetails = document.getElementById('sessionDetails');
+    const timeAnalysisGrid = document.getElementById('timeAnalysisGrid');
+
+    // ============================================
+    // FUNGSI UTILITAS
+    // ============================================
+    
+    function generateJournalId() {
+        return 'journal-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    }
+    
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('id-ID', options);
+    }
+    
+    function formatCurrency(num) {
+        const absNum = Math.abs(num);
+        const symbol = num >= 0 ? '$' : '-$';
+        return symbol + absNum.toFixed(2);
+    }
+    
+    // PERBAIKAN: Fungsi format angka tanpa trailing zeros
+    function formatNumberWithoutTrailingZeros(num) {
+        if (typeof num !== 'number' || isNaN(num)) return '0';
+        
+        // Untuk angka bulat, langsung kembalikan tanpa desimal
+        if (Number.isInteger(num)) {
+            return num.toString();
+        }
+        
+        // Untuk angka desimal, tampilkan maksimal 5 desimal
+        const str = num.toFixed(5);
+        
+        // Hapus trailing zeros
+        let result = str.replace(/(\.\d*?)0+$/, "$1");
+        
+        // Hapus titik desimal jika tidak ada angka di belakangnya
+        result = result.replace(/\.$/, "");
+        
+        return result;
+    }
+    
+    function formatPrice(price) {
+        if (price === undefined || price === null) return 'N/A';
+        return formatNumberWithoutTrailingZeros(parseFloat(price));
+    }
+    
+    function calculateRangeSL(entry, sl) {
+        if (!entry || !sl) return '0';
+        const diff = Math.abs(entry - sl);
+        return formatNumberWithoutTrailingZeros(diff);
+    }
+    
+    // TAMBAHAN: Fungsi untuk menghitung Range TP
+    function calculateRangeTP(entry, tp) {
+        if (!entry || !tp) return '0';
+        const diff = Math.abs(entry - tp);
+        return formatNumberWithoutTrailingZeros(diff);
+    }
+    
+    function formatRangeSL(value, entry, sl) {
+        let cleaned = value.replace(/[^\d.,\s]/g, '');
+        
+        if (cleaned.trim() === '') {
+            return calculateRangeSL(entry, sl);
+        }
+        
+        let cleanedWithDots = cleaned.replace(/,/g, '.');
+        let numericValue = parseFloat(cleanedWithDots);
+        
+        if (isNaN(numericValue)) {
+            return calculateRangeSL(entry, sl);
+        }
+        
+        return formatNumberWithoutTrailingZeros(numericValue);
+    }
+    
+    // TAMBAHAN: Fungsi untuk memformat Range TP
+    function formatRangeTP(value, entry, tp) {
+        let cleaned = value.replace(/[^\d.,\s]/g, '');
+        
+        if (cleaned.trim() === '') {
+            return calculateRangeTP(entry, tp);
+        }
+        
+        let cleanedWithDots = cleaned.replace(/,/g, '.');
+        let numericValue = parseFloat(cleanedWithDots);
+        
+        if (isNaN(numericValue)) {
+            return calculateRangeTP(entry, tp);
+        }
+        
+        return formatNumberWithoutTrailingZeros(numericValue);
+    }
+    
+    // ============================================
+    // FUNGSI UTILITAS FORMAT 24 JAM DENGAN WIB
+    // ============================================
+    
+    // Fungsi untuk memformat jam dengan 24 jam dan menambahkan WIB
+    function formatTime(timeString) {
+        if (!timeString) return '--:--';
+        
+        // Format 24 jam
+        const parts = timeString.split(':');
+        let hours = parseInt(parts[0], 10);
+        let minutes = parts[1] || '00';
+        
+        // Hapus AM/PM jika ada
+        if (minutes.includes('AM') || minutes.includes('PM')) {
+            minutes = minutes.replace(/(AM|PM)/i, '').trim();
+        }
+        
+        // Format 24 jam
+        hours = Math.max(0, Math.min(23, hours));
+        minutes = minutes.split(':')[0];
+        minutes = minutes.split('.')[0];
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+    }
+    
+    // Fungsi untuk mendapatkan jam saat ini dalam format HH:MM (24 jam)
+    function getCurrentTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+    
+    // Fungsi untuk menampilkan waktu dengan format HH:MM WIB
+    function formatTimeWithWIB(timeString) {
+        const formattedTime = formatTime(timeString);
+        // TAMBAHAN: 3 spasi setelah WIB
+        return `${formattedTime} <span class="time-wib">WIB&nbsp;&nbsp;&nbsp;</span>`;
+    }
+    
+    // Fungsi untuk memastikan format 24 jam
+    function ensure24HourFormat(timeString) {
+        if (!timeString) return getCurrentTime();
+        
+        // Jika sudah format HH:MM tanpa AM/PM
+        const time24Regex = /^([01]?[0-9]|2[0-3]):([0-5][0-9])$/;
+        if (time24Regex.test(timeString)) {
+            return timeString;
+        }
+        
+        // Konversi dari format 12 jam ke 24 jam
+        const time12Regex = /^([0-9]{1,2}):([0-5][0-9])\s*(AM|PM|am|pm)$/;
+        if (time12Regex.test(timeString)) {
+            const parts = timeString.match(time12Regex);
+            let hours = parseInt(parts[1], 10);
+            const minutes = parts[2];
+            const period = parts[3].toUpperCase();
+            
+            if (period === 'PM' && hours < 12) {
+                hours += 12;
+            } else if (period === 'AM' && hours === 12) {
+                hours = 0;
+            }
+            
+            return `${hours.toString().padStart(2, '0')}:${minutes}`;
+        }
+        
+        // Jika tidak sesuai format, kembalikan waktu sekarang
+        return getCurrentTime();
+    }
+    
+    function showNotification(msg, type = 'success') {
+        notification.innerText = msg;
+        notification.style.backgroundColor = type === 'success' ? 'var(--accent)' : 
+                                           type === 'warning' ? 'var(--warning)' : 
+                                           type === 'error' ? 'var(--loss)' : 'var(--accent)';
+        notification.classList.add('show');
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+    
+    // ============================================
+    // FUNGSI UTILITAS UNTUK TRACKING TYPING
+    // ============================================
+    
+    function handleTypingStart(isEdit = false, isTP = false) {
+        if (isTP) {
+            if (isEdit) {
+                isTypingEditRangeTP = true;
+            } else {
+                isTypingRangeTP = true;
+            }
+        } else {
+            if (isEdit) {
+                isTypingEditRangeSL = true;
+            } else {
+                isTypingRangeSL = true;
+            }
+        }
+    }
+    
+    function handleTypingEnd(isEdit = false, isTP = false) {
+        if (isTP) {
+            if (isEdit) {
+                isTypingEditRangeTP = false;
+            } else {
+                isTypingRangeTP = false;
+            }
+        } else {
+            if (isEdit) {
+                isTypingEditRangeSL = false;
+            } else {
+                isTypingRangeSL = false;
+            }
+        }
+    }
+    
+    function debounceTyping(callback, isEdit = false, isTP = false) {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => {
+            handleTypingEnd(isEdit, isTP);
+            if (callback) callback();
+        }, TYPING_DELAY);
+    }
+    
+    // ============================================
+    // FUNGSI VALIDASI RANGE SL YANG DIPERBAIKI
+    // ============================================
+    
+    function validateRangeSL(value, isEdit = false) {
+        // Ambil nilai entry dan SL
+        let entry, sl;
+        
+        if (!isEdit) {
+            entry = parseFloat(entryPriceInput.value);
+            sl = parseFloat(slPriceInput.value);
+        } else {
+            entry = parseFloat(editEntryPriceInput.value);
+            sl = parseFloat(editSlPriceInput.value);
+        }
+        
+        // Jika entry atau SL belum diisi, JANGAN tampilkan peringatan
+        if (isNaN(entry) || isNaN(sl)) {
+            return true; // Return true agar tidak muncul peringatan
+        }
+        
+        // Jika user masih mengetik, jangan validasi dulu
+        if ((!isEdit && isTypingRangeSL) || (isEdit && isTypingEditRangeSL)) {
+            return true; // Return true sementara untuk menghindari peringatan prematur
+        }
+        
+        // Cek jika nilai masih default atau otomatis
+        if (!value || value.trim() === '' || 
+            value === 'Otomatis' || 
+            value === '0' || 
+            value.toLowerCase() === '0 pips' ||
+            value.toLowerCase() === '0.00000' ||
+            value.toLowerCase() === '0.00000 pips') {
+            return false;
+        }
+        
+        // Jika nilai sama dengan perhitungan otomatis
+        const calculatedValue = calculateRangeSL(entry, sl);
+        const autoValue = calculatedValue + ' pips';
+        if (value === autoValue || value === calculatedValue) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // TAMBAHAN: Fungsi validasi untuk Range TP
+    function validateRangeTP(value, isEdit = false) {
+        let entry, tp;
+        
+        if (!isEdit) {
+            entry = parseFloat(entryPriceInput.value);
+            tp = parseFloat(tpPriceInput.value);
+        } else {
+            entry = parseFloat(editEntryPriceInput.value);
+            tp = parseFloat(editTpPriceInput.value);
+        }
+        
+        // Jika entry atau TP belum diisi, JANGAN tampilkan peringatan
+        if (isNaN(entry) || isNaN(tp)) {
+            return true;
+        }
+        
+        // Jika user masih mengetik, jangan validasi dulu
+        if ((!isEdit && isTypingRangeTP) || (isEdit && isTypingEditRangeTP)) {
+            return true;
+        }
+        
+        // Cek jika nilai masih default atau otomatis
+        if (!value || value.trim() === '' || 
+            value === 'Otomatis' || 
+            value === '0' || 
+            value.toLowerCase() === '0 pips' ||
+            value.toLowerCase() === '0.00000' ||
+            value.toLowerCase() === '0.00000 pips') {
+            return false;
+        }
+        
+        // Jika nilai sama dengan perhitungan otomatis
+        const calculatedValue = calculateRangeTP(entry, tp);
+        const autoValue = calculatedValue + ' pips';
+        if (value === autoValue || value === calculatedValue) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function showRangeSLWarning(show, isEdit = false) {
+        // Jangan tampilkan peringatan jika user masih mengetik
+        if ((!isEdit && isTypingRangeSL) || (isEdit && isTypingEditRangeSL)) {
+            return;
+        }
+        
+        // Jangan tampilkan peringatan jika entry atau SL belum diisi
+        let entry, sl;
+        if (!isEdit) {
+            entry = parseFloat(entryPriceInput.value);
+            sl = parseFloat(slPriceInput.value);
+        } else {
+            entry = parseFloat(editEntryPriceInput.value);
+            sl = parseFloat(editSlPriceInput.value);
+        }
+        
+        if (isNaN(entry) || isNaN(sl)) {
+            // Jika entry atau SL belum diisi, sembunyikan peringatan
+            if (isEdit) {
+                editRangeSLInput.classList.remove('input-warning');
+                editRangeSLWarningShown = false;
+            } else {
+                rangeSLInput.classList.remove('input-warning');
+                rangeSLWarningShown = false;
+            }
+            return;
+        }
+        
+        // HANYA atur class input-warning tanpa menampilkan teks
+        if (isEdit) {
+            editRangeSLInput.classList.toggle('input-warning', show);
+            editRangeSLWarningShown = show;
+        } else {
+            rangeSLInput.classList.toggle('input-warning', show);
+            rangeSLWarningShown = show;
+        }
+    }
+    
+    // TAMBAHAN: Fungsi untuk menampilkan peringatan Range TP
+    function showRangeTPWarning(show, isEdit = false) {
+        // Jangan tampilkan peringatan jika user masih mengetik
+        if ((!isEdit && isTypingRangeTP) || (isEdit && isTypingEditRangeTP)) {
+            return;
+        }
+        
+        // Jangan tampilkan peringatan jika entry atau TP belum diisi
+        let entry, tp;
+        if (!isEdit) {
+            entry = parseFloat(entryPriceInput.value);
+            tp = parseFloat(tpPriceInput.value);
+        } else {
+            entry = parseFloat(editEntryPriceInput.value);
+            tp = parseFloat(editTpPriceInput.value);
+        }
+        
+        if (isNaN(entry) || isNaN(tp)) {
+            // Jika entry atau TP belum diisi, sembunyikan peringatan
+            if (isEdit) {
+                editRangeTPInput.classList.remove('input-warning');
+                editRangeTPWarningShown = false;
+            } else {
+                rangeTPInput.classList.remove('input-warning');
+                rangeTPWarningShown = false;
+            }
+            return;
+        }
+        
+        // HANYA atur class input-warning tanpa menampilkan teks
+        if (isEdit) {
+            editRangeTPInput.classList.toggle('input-warning', show);
+            editRangeTPWarningShown = show;
+        } else {
+            rangeTPInput.classList.toggle('input-warning', show);
+            rangeTPWarningShown = show;
+        }
+    }
+
+    // ============================================
+    // FUNGSI UPDATE RANGE SL YANG DIPERBAIKI
+    // ============================================
+    
+    function updateRangeSL() {
+        // Jangan update otomatis jika user sedang mengetik
+        if (isTypingRangeSL) return;
+        
+        const entry = parseFloat(entryPriceInput.value);
+        const sl = parseFloat(slPriceInput.value);
+        
+        // Hanya hitung jika entry dan SL valid
+        if (!isNaN(entry) && !isNaN(sl)) {
+            const calculatedValue = calculateRangeSL(entry, sl);
+            const currentValue = rangeSLInput.value.trim();
+            
+            // Cek apakah nilai saat ini sama dengan yang akan dihitung
+            const isAutoValue = currentValue === calculatedValue || 
+                               currentValue === calculatedValue + ' pips' ||
+                               currentValue === '' ||
+                               currentValue === 'Otomatis';
+            
+            if (isAutoValue) {
+                if (calculatedValue !== '0') {
+                    rangeSLInput.value = calculatedValue + ' pips';
+                } else {
+                    rangeSLInput.value = calculatedValue;
+                }
+                
+                // Validasi setelah update - tapi hanya jika entry dan SL sudah valid
+                setTimeout(() => {
+                    const isValid = validateRangeSL(rangeSLInput.value, false);
+                    showRangeSLWarning(!isValid);
+                }, 100);
+            }
+        }
+    }
+    
+    function updateEditRangeSL() {
+        // Jangan update otomatis jika user sedang mengetik
+        if (isTypingEditRangeSL) return;
+        
+        const entry = parseFloat(editEntryPriceInput.value);
+        const sl = parseFloat(editSlPriceInput.value);
+        
+        // Hanya hitung jika entry dan SL valid
+        if (!isNaN(entry) && !isNaN(sl)) {
+            const calculatedValue = calculateRangeSL(entry, sl);
+            const currentValue = editRangeSLInput.value.trim();
+            
+            // Cek apakah nilai saat ini sama dengan yang akan dihitung
+            const isAutoValue = currentValue === calculatedValue || 
+                               currentValue === calculatedValue + ' pips' ||
+                               currentValue === '' ||
+                               currentValue === 'Otomatis';
+            
+            if (isAutoValue) {
+                if (calculatedValue !== '0') {
+                    editRangeSLInput.value = calculatedValue + ' pips';
+                } else {
+                    editRangeSLInput.value = calculatedValue;
+                }
+                
+                // Validasi setelah update - tapi hanya jika entry dan SL sudah valid
+                setTimeout(() => {
+                    const isValid = validateRangeSL(editRangeSLInput.value, true);
+                    showRangeSLWarning(!isValid, true);
+                }, 100);
+            }
+        }
+    }
+    
+    // TAMBAHAN: Fungsi update untuk Range TP
+    function updateRangeTP() {
+        if (isTypingRangeTP) return;
+        
+        const entry = parseFloat(entryPriceInput.value);
+        const tp = parseFloat(tpPriceInput.value);
+        
+        if (!isNaN(entry) && !isNaN(tp)) {
+            const calculatedValue = calculateRangeTP(entry, tp);
+            const currentValue = rangeTPInput.value.trim();
+            
+            const isAutoValue = currentValue === calculatedValue || 
+                               currentValue === calculatedValue + ' pips' ||
+                               currentValue === '' ||
+                               currentValue === 'Otomatis';
+            
+            if (isAutoValue) {
+                if (calculatedValue !== '0') {
+                    rangeTPInput.value = calculatedValue + ' pips';
+                } else {
+                    rangeTPInput.value = calculatedValue;
+                }
+                
+                setTimeout(() => {
+                    const isValid = validateRangeTP(rangeTPInput.value, false);
+                    showRangeTPWarning(!isValid);
+                }, 100);
+            }
+        }
+    }
+    
+    // TAMBAHAN: Fungsi update untuk Edit Range TP
+    function updateEditRangeTP() {
+        if (isTypingEditRangeTP) return;
+        
+        const entry = parseFloat(editEntryPriceInput.value);
+        const tp = parseFloat(editTpPriceInput.value);
+        
+        if (!isNaN(entry) && !isNaN(tp)) {
+            const calculatedValue = calculateRangeTP(entry, tp);
+            const currentValue = editRangeTPInput.value.trim();
+            
+            const isAutoValue = currentValue === calculatedValue || 
+                               currentValue === calculatedValue + ' pips' ||
+                               currentValue === '' ||
+                               currentValue === 'Otomatis';
+            
+            if (isAutoValue) {
+                if (calculatedValue !== '0') {
+                    editRangeTPInput.value = calculatedValue + ' pips';
+                } else {
+                    editRangeTPInput.value = calculatedValue;
+                }
+                
+                setTimeout(() => {
+                    const isValid = validateRangeTP(editRangeTPInput.value, true);
+                    showRangeTPWarning(!isValid, true);
+                }, 100);
+            }
+        }
+    }
+
+    // ============================================
+    // MANAJEMEN JURNAL (MULTI-JOURNAL SYSTEM)
+    // ============================================
+    
+    function loadJournalData() {
+        const savedData = localStorage.getItem('tradingJournalData');
+        
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            
+            // Migrasi dari versi lama
+            if (Array.isArray(parsed)) {
+                // Data lama, buat jurnal default
+                journalData.journals = {
+                    "jurnal-utama": {
+                        id: "jurnal-utama",
+                        name: "Jurnal Utama",
+                        description: "Jurnal trading utama",
+                        createdAt: new Date().toISOString().split('T')[0],
+                        updatedAt: new Date().toISOString().split('T')[0],
+                        trades: parsed.map(trade => ({
+                            ...trade,
+                            // Konversi waktu ke format 24 jam
+                            time: trade.time ? ensure24HourFormat(trade.time) : getCurrentTime(),
+                            // Pastikan semua trade memiliki rangeTP (untuk data lama)
+                            rangeTP: trade.rangeTP || ''
+                        }))
+                    }
+                };
+                journalData.activeJournalId = "jurnal-utama";
+            } else if (parsed.journals && parsed.activeJournalId) {
+                // Data baru, sudah dalam format multi-jurnal
+                journalData.journals = parsed.journals;
+                journalData.activeJournalId = parsed.activeJournalId;
+                
+                // Pastikan semua trade memiliki field time dalam format 24 jam
+                // dan memiliki rangeTP
+                Object.values(journalData.journals).forEach(journal => {
+                    if (journal.trades) {
+                        journal.trades.forEach(trade => {
+                            if (!trade.time) {
+                                trade.time = getCurrentTime();
+                            } else {
+                                // Konversi ke format 24 jam jika perlu
+                                trade.time = ensure24HourFormat(trade.time);
+                            }
+                            
+                            // Pastikan trade memiliki rangeTP
+                            if (!trade.hasOwnProperty('rangeTP')) {
+                                trade.rangeTP = '';
+                            }
+                        });
+                    }
+                });
+            }
+        }
+        
+        // Jika masih kosong, buat jurnal default
+        if (!journalData.journals || Object.keys(journalData.journals).length === 0) {
+            const defaultJournalId = generateJournalId();
+            journalData.journals = {
+                [defaultJournalId]: {
+                    id: defaultJournalId,
+                    name: "Jurnal Utama",
+                    description: "Jurnal trading utama",
+                    createdAt: new Date().toISOString().split('T')[0],
+                    updatedAt: new Date().toISOString().split('T')[0],
+                    trades: []
+                }
+            };
+            journalData.activeJournalId = defaultJournalId;
+            saveJournalData();
+        }
+        
+        // Set jurnal aktif
+        if (!journalData.activeJournalId || !journalData.journals[journalData.activeJournalId]) {
+            journalData.activeJournalId = Object.keys(journalData.journals)[0];
+        }
+        
+        updateActiveJournal();
+    }
+    
+    function saveJournalData() {
+        localStorage.setItem('tradingJournalData', JSON.stringify(journalData));
+    }
+    
+    function updateActiveJournal() {
+        const activeJournal = journalData.journals[journalData.activeJournalId];
+        if (!activeJournal) return;
+        
+        trades = activeJournal.trades || [];
+        trades.sort((a, b) => {
+            const dateA = new Date(a.date + 'T' + (a.time || '00:00'));
+            const dateB = new Date(b.date + 'T' + (b.time || '00:00'));
+            return dateA - dateB;
+        });
+        
+        // Update UI
+        updateJournalSelect();
+        currentJournalName.textContent = activeJournal.name;
+        tableJournalName.textContent = activeJournal.name;
+        
+        // Update semua komponen UI
+        updateUI();
+    }
+    
+    function updateJournalSelect() {
+        journalSelect.innerHTML = '';
+        
+        Object.values(journalData.journals).forEach(journal => {
+            const option = document.createElement('option');
+            option.value = journal.id;
+            option.textContent = journal.name;
+            option.selected = journal.id === journalData.activeJournalId;
+            journalSelect.appendChild(option);
+        });
+    }
+    
+    function changeActiveJournal(journalId) {
+        if (journalData.journals[journalId]) {
+            journalData.activeJournalId = journalId;
+            saveJournalData();
+            updateActiveJournal();
+            showNotification(`Berhasil beralih ke jurnal: ${journalData.journals[journalId].name}`);
+        }
+    }
+    
+    function createNewJournal() {
+        const name = newJournalName.value.trim();
+        const desc = newJournalDesc.value.trim();
+        
+        if (!name) {
+            showNotification('Nama jurnal harus diisi', 'warning');
+            return;
+        }
+        
+        // Cek duplikat nama
+        const duplicate = Object.values(journalData.journals).find(j => 
+            j.name.toLowerCase() === name.toLowerCase()
+        );
+        
+        if (duplicate) {
+            showNotification('Nama jurnal sudah ada', 'warning');
+            return;
+        }
+        
+        const newJournalId = generateJournalId();
+        const today = new Date().toISOString().split('T')[0];
+        
+        journalData.journals[newJournalId] = {
+            id: newJournalId,
+            name: name,
+            description: desc,
+            createdAt: today,
+            updatedAt: today,
+            trades: []
+        };
+        
+        journalData.activeJournalId = newJournalId;
+        saveJournalData();
+        updateActiveJournal();
+        
+        // Reset form dan tutup modal
+        newJournalName.value = '';
+        newJournalDesc.value = '';
+        closeNewJournalModal();
+        
+        showNotification(`Jurnal "${name}" berhasil dibuat`);
+    }
+    
+    function createNewJournalFromManager() {
+        const name = newJournalModalName.value.trim();
+        
+        if (!name) {
+            showNotification('Nama jurnal harus diisi', 'warning');
+            return;
+        }
+        
+        // Cek duplikat nama
+        const duplicate = Object.values(journalData.journals).find(j => 
+            j.name.toLowerCase() === name.toLowerCase()
+        );
+        
+        if (duplicate) {
+            showNotification('Nama jurnal sudah ada', 'warning');
+            return;
+        }
+        
+        const newJournalId = generateJournalId();
+        const today = new Date().toISOString().split('T')[0];
+        
+        journalData.journals[newJournalId] = {
+            id: newJournalId,
+            name: name,
+            description: "Jurnal trading",
+            createdAt: today,
+            updatedAt: today,
+            trades: []
+        };
+        
+        journalData.activeJournalId = newJournalId;
+        saveJournalData();
+        updateActiveJournal();
+        
+        // Reset form
+        newJournalModalName.value = '';
+        
+        // Update daftar jurnal di modal
+        renderJournalList();
+        
+        showNotification(`Jurnal "${name}" berhasil dibuat`);
+    }
+    
+    function deleteJournal(journalId) {
+        if (Object.keys(journalData.journals).length <= 1) {
+            showNotification('Tidak dapat menghapus jurnal terakhir', 'warning');
+            return;
+        }
+        
+        const journalName = journalData.journals[journalId].name;
+        
+        if (confirm(`Hapus jurnal "${journalName}"? Semua transaksi dalam jurnal ini akan hilang.`)) {
+            delete journalData.journals[journalId];
+            
+            // Jika jurnal yang dihapus adalah jurnal aktif, pindah ke jurnal lain
+            if (journalData.activeJournalId === journalId) {
+                journalData.activeJournalId = Object.keys(journalData.journals)[0];
+            }
+            
+            saveJournalData();
+            updateActiveJournal();
+            renderJournalList();
+            
+            showNotification(`Jurnal "${journalName}" berhasil dihapus`);
+        }
+    }
+    
+    function renameJournal(journalId) {
+        const journal = journalData.journals[journalId];
+        const newName = prompt(`Ubah nama jurnal "${journal.name}":`, journal.name);
+        
+        if (newName && newName.trim() && newName !== journal.name) {
+            // Cek duplikat
+            const duplicate = Object.values(journalData.journals).find(j => 
+                j.id !== journalId && j.name.toLowerCase() === newName.toLowerCase()
+            );
+            
+            if (duplicate) {
+                showNotification('Nama jurnal sudah ada', 'warning');
+                return;
+            }
+            
+            journal.name = newName.trim();
+            journal.updatedAt = new Date().toISOString().split('T')[0];
+            
+            saveJournalData();
+            updateActiveJournal();
+            renderJournalList();
+            
+            showNotification('Nama jurnal berhasil diubah');
+        }
+    }
+    
+    function renderJournalList() {
+        journalList.innerHTML = '';
+        
+        if (Object.keys(journalData.journals).length === 0) {
+            journalList.innerHTML = '<div class="journal-empty">Belum ada jurnal</div>';
+            return;
+        }
+        
+        Object.values(journalData.journals).forEach(journal => {
+            const isActive = journal.id === journalData.activeJournalId;
+            const tradeCount = journal.trades ? journal.trades.length : 0;
+            
+            const journalItem = document.createElement('div');
+            journalItem.className = `journal-item ${isActive ? 'active' : ''}`;
+            journalItem.innerHTML = `
+                <div>
+                    <div class="journal-item-name">${journal.name}</div>
+                    <div class="journal-item-stats">
+                        ${tradeCount} transaksi • Dibuat: ${formatDate(journal.createdAt)}
+                    </div>
+                </div>
+                <div class="journal-item-actions">
+                    ${!isActive ? `<button class="btn-small" onclick="switchToJournal('${journal.id}')">Pilih</button>` : ''}
+                    <button class="btn-small" onclick="renameJournal('${journal.id}')">Ubah Nama</button>
+                    <button class="btn-small btn-small-danger" onclick="deleteJournal('${journal.id}')">Hapus</button>
+                </div>
+            `;
+            
+            journalList.appendChild(journalItem);
+        });
+    }
+    
+    function switchToJournal(journalId) {
+        if (journalData.journals[journalId]) {
+            journalData.activeJournalId = journalId;
+            saveJournalData();
+            updateActiveJournal();
+            closeJournalManagerModal();
+            showNotification(`Berhasil beralih ke jurnal: ${journalData.journals[journalId].name}`);
+        }
+    }
+    
+    function showJournalManager() {
+        renderJournalList();
+        journalManagerModal.style.display = 'flex';
+    }
+    
+    function closeJournalManagerModal() {
+        journalManagerModal.style.display = 'none';
+    }
+    
+    function showNewJournalModal() {
+        newJournalModal.style.display = 'flex';
+        newJournalName.focus();
+    }
+    
+    function closeNewJournalModal() {
+        newJournalModal.style.display = 'none';
+    }
+    
+    // ============================================
+    // MANAJEMEN TRANSAKSI DENGAN VALIDASI YANG DIPERBAIKI
+    // ============================================
+    
+    function addTrade(e) {
+        e.preventDefault();
+        
+        // Validasi bahwa entry dan SL sudah diisi
+        const entry = parseFloat(entryPriceInput.value);
+        const sl = parseFloat(slPriceInput.value);
+        
+        if (isNaN(entry) || isNaN(sl)) {
+            showNotification('Harap isi harga Entry dan SL terlebih dahulu', 'warning');
+            if (isNaN(entry)) entryPriceInput.focus();
+            else slPriceInput.focus();
+            return;
+        }
+        
+        // Pastikan tidak ada input yang sedang aktif
+        if (document.activeElement === rangeSLInput || document.activeElement === editRangeSLInput) {
+            // User masih fokus pada input Range SL, minta mereka untuk selesai dulu
+            showNotification('Selesaikan pengisian Range SL terlebih dahulu', 'warning');
+            return;
+        }
+        
+        // Validasi Range SL dengan pengecekan akhir
+        const rangeSLValue = rangeSLInput.value.trim();
+        
+        if (!validateRangeSL(rangeSLValue, false)) {
+            showRangeSLWarning(true);
+            showNotification('Harap edit nilai Range SL (warna border kuning) sebelum menyimpan', 'warning');
+            rangeSLInput.focus();
+            rangeSLInput.select();
+            return;
+        }
+        
+        // TAMBAHAN: Validasi Range TP (jika TP diisi)
+        const tp = parseFloat(tpPriceInput.value);
+        if (!isNaN(tp)) {
+            const rangeTPValue = rangeTPInput.value.trim();
+            if (!validateRangeTP(rangeTPValue, false)) {
+                showRangeTPWarning(true);
+                showNotification('Harap edit nilai Range TP (warna border kuning) sebelum menyimpan', 'warning');
+                rangeTPInput.focus();
+                rangeTPInput.select();
+                return;
+            }
+        }
+        
+        const pair = document.getElementById('pair').value.toUpperCase();
+        const lot = parseFloat(document.getElementById('lot').value);
+        const date = document.getElementById('date').value;
+        const time = ensure24HourFormat(document.getElementById('time').value);
+        const session = document.getElementById('session').value;
+        const action = document.getElementById('action').value;
+        const entryPrice = parseFloat(entryPriceInput.value);
+        const slPrice = parseFloat(slPriceInput.value);
+        const tpPrice = isNaN(tp) ? 0 : tp;
+        
+        // Range SL
+        let finalRangeSL;
+        if (rangeSLValue === '' || rangeSLValue === 'Otomatis') {
+            const calculatedValue = calculateRangeSL(entryPrice, slPrice);
+            finalRangeSL = calculatedValue === '0' ? '0' : calculatedValue + ' pips';
+        } else {
+            finalRangeSL = rangeSLValue.replace(/,/g, '.');
+            
+            if (!finalRangeSL.toLowerCase().includes('pip') && 
+                !finalRangeSL.toLowerCase().includes('point')) {
+                const numPart = finalRangeSL.replace(/\s*pips?/i, '');
+                if (parseFloat(numPart) !== 0) {
+                    finalRangeSL += ' pips';
+                }
+            }
+        }
+        
+        // TAMBAHAN: Range TP
+        let finalRangeTP = '';
+        if (!isNaN(tp)) {
+            const rangeTPValue = rangeTPInput.value.trim();
+            if (rangeTPValue === '' || rangeTPValue === 'Otomatis') {
+                const calculatedValue = calculateRangeTP(entryPrice, tpPrice);
+                finalRangeTP = calculatedValue === '0' ? '0' : calculatedValue + ' pips';
+            } else {
+                finalRangeTP = rangeTPValue.replace(/,/g, '.');
+                
+                if (!finalRangeTP.toLowerCase().includes('pip') && 
+                    !finalRangeTP.toLowerCase().includes('point')) {
+                    const numPart = finalRangeTP.replace(/\s*pips?/i, '');
+                    if (parseFloat(numPart) !== 0) {
+                        finalRangeTP += ' pips';
+                    }
+                }
+            }
+        }
+        
+        const profit = parseFloat(document.getElementById('profit').value);
+        const commissionInput = document.getElementById('commission').value;
+        const commissionValue = parseFloat(commissionInput.replace(',', '.')) || 0;
+        const commission = -Math.abs(commissionValue);
+        const notes = document.getElementById('notes').value;
+
+        const newTrade = {
+            id: Date.now(),
+            pair,
+            lot,
+            date,
+            time: time || getCurrentTime(),
+            session,
+            action,
+            entryPrice,
+            slPrice,
+            rangeSL: finalRangeSL,
+            tpPrice: tpPrice,
+            rangeTP: finalRangeTP,
+            profit,
+            commission,
+            notes,
+            net: profit + commission
+        };
+
+        trades.push(newTrade);
+        trades.sort((a, b) => {
+            const dateA = new Date(a.date + 'T' + a.time);
+            const dateB = new Date(b.date + 'T' + b.time);
+            return dateA - dateB;
+        });
+        
+        // Update jurnal aktif
+        const activeJournal = journalData.journals[journalData.activeJournalId];
+        activeJournal.trades = trades;
+        activeJournal.updatedAt = new Date().toISOString().split('T')[0];
+        
+        saveJournalData();
+        updateActiveJournal();
+        
+        // Reset form
+        form.reset();
+        document.getElementById('date').valueAsDate = new Date();
+        document.getElementById('time').value = getCurrentTime();
+        document.getElementById('commission').value = 0;
+        document.getElementById('notes').value = '';
+        rangeSLInput.value = '';
+        rangeTPInput.value = '';
+        
+        // Hilangkan peringatan
+        showRangeSLWarning(false);
+        showRangeTPWarning(false);
+        
+        showNotification("Transaksi berhasil dicatat!");
+    }
+    
+    let editingId = null;
+    
+    function editTrade(id) {
+        const trade = trades.find(t => t.id === id);
+        if (!trade) return;
+
+        editingId = id;
+        
+        // Isi form edit
+        document.getElementById('editId').value = trade.id;
+        document.getElementById('editPair').value = trade.pair;
+        document.getElementById('editLot').value = trade.lot;
+        document.getElementById('editDate').value = trade.date;
+        document.getElementById('editTime').value = trade.time ? formatTime(trade.time) : getCurrentTime(); // Format tanpa WIB untuk input
+        document.getElementById('editSession').value = trade.session;
+        document.getElementById('editAction').value = trade.action;
+        document.getElementById('editEntryPrice').value = trade.entryPrice;
+        document.getElementById('editSlPrice').value = trade.slPrice;
+        document.getElementById('editRangeSL').value = trade.rangeSL || 
+            (calculateRangeSL(trade.entryPrice, trade.slPrice) + ' pips');
+        // TAMBAHAN: Isi nilai TP
+        document.getElementById('editTpPrice').value = trade.tpPrice || '';
+        document.getElementById('editRangeTP').value = trade.rangeTP || '';
+        document.getElementById('editProfit').value = trade.profit;
+        document.getElementById('editCommission').value = Math.abs(trade.commission);
+        document.getElementById('editNotes').value = trade.notes || '';
+        
+        // Reset typing state untuk edit modal
+        isTypingEditRangeSL = false;
+        isTypingEditRangeTP = false;
+        
+        // Validasi Range SL edit
+        const editRangeSLValue = document.getElementById('editRangeSL').value;
+        const entry = parseFloat(editEntryPriceInput.value);
+        const sl = parseFloat(editSlPriceInput.value);
+        
+        // Hanya validasi jika entry dan SL sudah valid
+        if (!isNaN(entry) && !isNaN(sl)) {
+            if (!validateRangeSL(editRangeSLValue, true)) {
+                showRangeSLWarning(true, true);
+            } else {
+                showRangeSLWarning(false, true);
+            }
+        } else {
+            showRangeSLWarning(false, true);
+        }
+        
+        // TAMBAHAN: Validasi Range TP edit
+        const editRangeTPValue = document.getElementById('editRangeTP').value;
+        const tp = parseFloat(editTpPriceInput.value);
+        
+        if (!isNaN(entry) && !isNaN(tp)) {
+            if (!validateRangeTP(editRangeTPValue, true)) {
+                showRangeTPWarning(true, true);
+            } else {
+                showRangeTPWarning(false, true);
+            }
+        } else {
+            showRangeTPWarning(false, true);
+        }
+        
+        editModal.style.display = 'flex';
+        
+        setTimeout(() => {
+            document.getElementById('editPair').focus();
+        }, 100);
+    }
+    
+    function updateTrade(e) {
+        e.preventDefault();
+        
+        // Validasi bahwa entry dan SL sudah diisi
+        const entry = parseFloat(editEntryPriceInput.value);
+        const sl = parseFloat(editSlPriceInput.value);
+        
+        if (isNaN(entry) || isNaN(sl)) {
+            showNotification('Harap isi harga Entry dan SL terlebih dahulu', 'warning');
+            if (isNaN(entry)) editEntryPriceInput.focus();
+            else editSlPriceInput.focus();
+            return;
+        }
+        
+        // Pastikan tidak ada input yang sedang aktif
+        if (document.activeElement === editRangeSLInput) {
+            // User masih fokus pada input Range SL, minta mereka untuk selesai dulu
+            showNotification('Selesaikan pengisian Range SL terlebih dahulu', 'warning');
+            return;
+        }
+        
+        // Validasi Range SL dengan pengecekan akhir
+        const editRangeSLValue = editRangeSLInput.value.trim();
+        
+        if (!validateRangeSL(editRangeSLValue, true)) {
+            showRangeSLWarning(true, true);
+            showNotification('Harap edit nilai Range SL (warna border kuning) sebelum menyimpan', 'warning');
+            editRangeSLInput.focus();
+            editRangeSLInput.select();
+            return;
+        }
+        
+        // TAMBAHAN: Validasi Range TP (jika TP diisi)
+        const tp = parseFloat(editTpPriceInput.value);
+        if (!isNaN(tp)) {
+            const editRangeTPValue = editRangeTPInput.value.trim();
+            if (!validateRangeTP(editRangeTPValue, true)) {
+                showRangeTPWarning(true, true);
+                showNotification('Harap edit nilai Range TP (warna border kuning) sebelum menyimpan', 'warning');
+                editRangeTPInput.focus();
+                editRangeTPInput.select();
+                return;
+            }
+        }
+
+        const id = parseInt(document.getElementById('editId').value);
+        const index = trades.findIndex(t => t.id === id);
+        
+        if (index === -1) return;
+        
+        let rangeSLInputValue = editRangeSLInput.value.trim();
+        
+        let finalRangeSL;
+        if (rangeSLInputValue === '') {
+            const calculatedValue = calculateRangeSL(entry, sl);
+            finalRangeSL = calculatedValue === '0' ? '0' : calculatedValue + ' pips';
+        } else {
+            finalRangeSL = rangeSLInputValue.replace(/,/g, '.');
+            
+            if (!finalRangeSL.toLowerCase().includes('pip') && 
+                !finalRangeSL.toLowerCase().includes('point')) {
+                const numPart = finalRangeSL.replace(/\s*pips?/i, '');
+                if (parseFloat(numPart) !== 0) {
+                    finalRangeSL += ' pips';
+                }
+            }
+        }
+        
+        // TAMBAHAN: Range TP
+        let finalRangeTP = '';
+        if (!isNaN(tp)) {
+            const editRangeTPValue = editRangeTPInput.value.trim();
+            if (editRangeTPValue === '') {
+                const calculatedValue = calculateRangeTP(entry, tp);
+                finalRangeTP = calculatedValue === '0' ? '0' : calculatedValue + ' pips';
+            } else {
+                finalRangeTP = editRangeTPValue.replace(/,/g, '.');
+                
+                if (!finalRangeTP.toLowerCase().includes('pip') && 
+                    !finalRangeTP.toLowerCase().includes('point')) {
+                    const numPart = finalRangeTP.replace(/\s*pips?/i, '');
+                    if (parseFloat(numPart) !== 0) {
+                        finalRangeTP += ' pips';
+                    }
+                }
+            }
+        }
+        
+        const commissionInput = document.getElementById('editCommission').value;
+        const commissionValue = parseFloat(commissionInput.replace(',', '.')) || 0;
+        const commission = -Math.abs(commissionValue);
+
+        trades[index] = {
+            ...trades[index],
+            pair: document.getElementById('editPair').value.toUpperCase(),
+            lot: parseFloat(document.getElementById('editLot').value),
+            date: document.getElementById('editDate').value,
+            time: ensure24HourFormat(document.getElementById('editTime').value) || getCurrentTime(),
+            session: document.getElementById('editSession').value,
+            action: document.getElementById('editAction').value,
+            entryPrice: entry,
+            slPrice: sl,
+            rangeSL: finalRangeSL,
+            tpPrice: tp || 0,
+            rangeTP: finalRangeTP,
+            profit: parseFloat(document.getElementById('editProfit').value),
+            commission: commission,
+            notes: document.getElementById('editNotes').value,
+            net: parseFloat(document.getElementById('editProfit').value) + commission
+        };
+        
+        // Update jurnal aktif
+        const activeJournal = journalData.journals[journalData.activeJournalId];
+        activeJournal.trades = trades;
+        activeJournal.updatedAt = new Date().toISOString().split('T')[0];
+        
+        saveJournalData();
+        updateActiveJournal();
+        
+        closeModal();
+        showNotification("Transaksi berhasil diperbarui!");
+    }
+    
+    function deleteTrade() {
+        if(confirm('Hapus transaksi ini?')) {
+            trades = trades.filter(t => t.id !== editingId);
+            
+            // Update jurnal aktif
+            const activeJournal = journalData.journals[journalData.activeJournalId];
+            activeJournal.trades = trades;
+            activeJournal.updatedAt = new Date().toISOString().split('T')[0];
+            
+            saveJournalData();
+            updateActiveJournal();
+            
+            closeModal();
+            showNotification("Transaksi berhasil dihapus!");
+        }
+    }
+    
+    function closeModal() {
+        editModal.style.display = 'none';
+        editingId = null;
+        editForm.reset();
+        showRangeSLWarning(false, true);
+        showRangeTPWarning(false, true);
+        isTypingEditRangeSL = false;
+        isTypingEditRangeTP = false;
+    }
+
+    // ============================================
+    // FUNGSI UNTUK WIN RATE PER SESSION
+    // ============================================
+    
+    function updateWinRateChart() {
+        const sessions = ['London', 'New York', 'Asia', 'Overlap'];
+        const sessionStats = {};
+        
+        // Inisialisasi statistik
+        sessions.forEach(session => {
+            sessionStats[session] = {
+                total: 0,
+                wins: 0,
+                totalProfit: 0,
+                trades: []
+            };
+        });
+        
+        // Hitung statistik per sesi
+        trades.forEach(trade => {
+            if (sessionStats[trade.session]) {
+                sessionStats[trade.session].total++;
+                sessionStats[trade.session].trades.push(trade);
+                sessionStats[trade.session].totalProfit += trade.net;
+                
+                if (trade.net > 0) {
+                    sessionStats[trade.session].wins++;
+                }
+            }
+        });
+        
+        // Update grafik batang
+        sessionBarChart.innerHTML = '';
+        sessionDetails.innerHTML = '';
+        
+        sessions.forEach(session => {
+            const stats = sessionStats[session];
+            const winRate = stats.total > 0 ? Math.round((stats.wins / stats.total) * 100) : 0;
+            const avgProfit = stats.total > 0 ? stats.totalProfit / stats.total : 0;
+            
+            // Bar chart
+            const barContainer = document.createElement('div');
+            barContainer.className = 'bar-container';
+            
+            const barLabel = document.createElement('div');
+            barLabel.className = 'bar-label';
+            barLabel.textContent = session;
+            
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            
+            const barFill = document.createElement('div');
+            barFill.className = 'bar-fill';
+            barFill.style.width = '0%'; // Akan di-animate
+            barFill.style.backgroundColor = winRate >= 70 ? 'var(--profit)' : 
+                                          winRate >= 50 ? 'var(--warning)' : 
+                                          'var(--loss)';
+            
+            const barValue = document.createElement('div');
+            barValue.className = 'bar-value';
+            barValue.textContent = winRate + '%';
+            barValue.style.color = winRate >= 70 ? 'var(--profit)' : 
+                                  winRate >= 50 ? 'var(--warning)' : 
+                                  'var(--loss)';
+            
+            bar.appendChild(barFill);
+            barContainer.appendChild(barLabel);
+            barContainer.appendChild(bar);
+            barContainer.appendChild(barValue);
+            sessionBarChart.appendChild(barContainer);
+            
+            // Animate bar
+            setTimeout(() => {
+                barFill.style.width = winRate + '%';
+            }, 100);
+            
+            // Session details
+            const detailItem = document.createElement('div');
+            detailItem.className = 'session-detail-item';
+            
+            const sessionName = document.createElement('div');
+            sessionName.className = 'session-name';
+            sessionName.textContent = session;
+            
+            const sessionStatsDiv = document.createElement('div');
+            sessionStatsDiv.className = 'session-stats';
+            
+            const leftStats = document.createElement('div');
+            leftStats.innerHTML = `
+                <div>Total Trade: ${stats.total}</div>
+                <div>Win: ${stats.wins} | Loss: ${stats.total - stats.wins}</div>
+                <div>Avg Profit: ${formatCurrency(avgProfit)}</div>
+            `;
+            
+            const rightStats = document.createElement('div');
+            rightStats.innerHTML = `
+                <div class="session-win-rate" style="color: ${winRate >= 70 ? 'var(--profit)' : 
+                                                        winRate >= 50 ? 'var(--warning)' : 
+                                                        'var(--loss)'}">
+                    ${winRate}%
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Win Rate</div>
+            `;
+            
+            sessionStatsDiv.appendChild(leftStats);
+            sessionStatsDiv.appendChild(rightStats);
+            detailItem.appendChild(sessionName);
+            detailItem.appendChild(sessionStatsDiv);
+            sessionDetails.appendChild(detailItem);
+        });
+    }
+
+    // ============================================
+    // FUNGSI UNTUK CORRELATION ANALYSIS
+    // ============================================
+    
+    function updateCorrelationAnalysis() {
+        const sessions = ['London', 'New York', 'Asia', 'Overlap'];
+        
+        timeAnalysisGrid.innerHTML = '';
+        
+        // Analisis per sesi
+        sessions.forEach(session => {
+            const sessionTrades = trades.filter(trade => trade.session === session);
+            
+            if (sessionTrades.length === 0) {
+                const emptySession = document.createElement('div');
+                emptySession.className = 'session-hour-analysis';
+                emptySession.innerHTML = `
+                    <div class="session-hour-title">${session}</div>
+                    <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                        Tidak ada data untuk sesi ${session}
+                    </div>
+                `;
+                timeAnalysisGrid.appendChild(emptySession);
+                return;
+            }
+            
+            // Kelompokkan per jam
+            const hourStats = {};
+            
+            sessionTrades.forEach(trade => {
+                if (!trade.time) return;
+                
+                // Parse jam dari time (format: HH:MM)
+                const hour = parseInt(trade.time.split(':')[0]);
+                const hourKey = hour.toString().padStart(2, '0') + ':00';
+                
+                if (!hourStats[hourKey]) {
+                    hourStats[hourKey] = {
+                        totalProfit: 0,
+                        count: 0,
+                        trades: []
+                    };
+                }
+                
+                hourStats[hourKey].totalProfit += trade.net;
+                hourStats[hourKey].count++;
+                hourStats[hourKey].trades.push(trade);
+            });
+            
+            // Konversi ke array dan sort
+            const hourArray = Object.entries(hourStats)
+                .map(([hour, stats]) => ({
+                    hour,
+                    avgProfit: stats.count > 0 ? stats.totalProfit / stats.count : 0,
+                    count: stats.count,
+                    totalProfit: stats.totalProfit
+                }))
+                .sort((a, b) => b.avgProfit - a.avgProfit);
+            
+            // Ambil 3 teratas dan 3 terbawah
+            const topHours = hourArray.slice(0, 3);
+            const bottomHours = hourArray.slice(-3).reverse();
+            
+            // Buat elemen untuk sesi ini
+            const sessionAnalysis = document.createElement('div');
+            sessionAnalysis.className = 'session-hour-analysis';
+            
+            let html = `<div class="session-hour-title">${session}</div>`;
+            
+            // Tampilkan 3 jam terbaik
+            if (topHours.length > 0) {
+                html += `<div style="margin-bottom: 15px;">`;
+                html += `<div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Jam Terbaik (Profit Tinggi)</div>`;
+                
+                topHours.forEach(item => {
+                    const profitClass = item.avgProfit > 0 ? 'profit-high' : 
+                                       item.avgProfit > -10 ? 'profit-medium' : 'profit-low';
+                    html += `
+                        <div class="hour-item ${profitClass}">
+                            <div class="hour-time">${item.hour}</div>
+                            <div>
+                                <span class="hour-profit">${formatCurrency(item.avgProfit)}</span>
+                                <span class="hour-count">(${item.count} trade)</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+            
+            // Tampilkan 3 jam terburuk
+            if (bottomHours.length > 0) {
+                html += `<div>`;
+                html += `<div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Jam Perlu Perhatian</div>`;
+                
+                bottomHours.forEach(item => {
+                    const profitClass = item.avgProfit > 0 ? 'profit-high' : 
+                                       item.avgProfit > -10 ? 'profit-medium' : 'profit-low';
+                    html += `
+                        <div class="hour-item ${profitClass}">
+                            <div class="hour-time">${item.hour}</div>
+                            <div>
+                                <span class="hour-profit">${formatCurrency(item.avgProfit)}</span>
+                                <span class="hour-count">(${item.count} trade)</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+            
+            // Jika kurang dari 6 jam unik, tambahkan pesan
+            if (hourArray.length < 6) {
+                html += `<div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 10px;">
+                            Data masih terbatas untuk analisis mendalam
+                        </div>`;
+            }
+            
+            sessionAnalysis.innerHTML = html;
+            timeAnalysisGrid.appendChild(sessionAnalysis);
+        });
+    }
+
+    // ============================================
+    // UI UPDATES - DIPERBAIKI DENGAN MENGHAPUS KOLOM RISK:REWARD
+    // ============================================
+    
+    function updateUI() {
+        renderTable();
+        calculateStats();
+        renderCalendar();
+        renderChart();
+        updateWinRateChart();
+        updateCorrelationAnalysis();
+    }
+    
+    function renderTable() {
+        tableBody.innerHTML = '';
+        
+        if (trades.length === 0) {
+            emptyState.style.display = 'block';
+            return;
+        } else {
+            emptyState.style.display = 'none';
+        }
+
+        [...trades].reverse().forEach(trade => {
+            const row = document.createElement('tr');
+            
+            const profitClass = trade.net >= 0 ? 'text-profit' : 'text-loss';
+            const sign = trade.net >= 0 ? '+' : '';
+            
+            let rValue = 0;
+            if (trade.net > 0) {
+                rValue = 1;
+            } else if (trade.net < 0) {
+                rValue = -1;
+            }
+
+            const actionClass = trade.action === 'Buy' ? 'buy-badge' : 'sell-badge';
+            const actionText = trade.action;
+            
+            // Format waktu untuk tampilan dengan WIB dan 3 spasi
+            const formattedTime = formatTimeWithWIB(trade.time);
+            
+            row.innerHTML = `
+                <td>${formatDate(trade.date)}</td>
+                <td class="time-cell">${formattedTime}</td>
+                <td><span style="font-weight:bold; color:#fff;">${trade.pair}</span></td>
+                <td>${trade.session}</td>
+                <td><span class="direction-badge ${actionClass}">${actionText}</span></td>
+                <td>${trade.lot}</td>
+                <td>${formatPrice(trade.entryPrice)}</td>
+                <td>${formatPrice(trade.slPrice)}</td>
+                <td>${formatPrice(trade.tpPrice)}</td>
+                <td>${trade.rangeSL || '0 pips'}</td>
+                <td>${trade.rangeTP || '0 pips'}</td>
+                <!-- DIHAPUS: Kolom Risk:Reward -->
+                <td class="${trade.profit >= 0 ? 'text-profit' : 'text-loss'}">${formatCurrency(trade.profit)}</td>
+                <td class="text-loss">${formatCurrency(trade.commission)}</td>
+                <td class="${profitClass}" style="font-weight:bold;">${sign}${formatCurrency(trade.net)}</td>
+                <td class="${rValue >= 0 ? 'text-profit' : 'text-loss'}" style="font-weight:bold;">${rValue >= 0 ? '+' : ''}${rValue}R</td>
+                <td>
+                    <button class="edit-btn" onclick="editTrade(${trade.id})">Edit</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    function calculateStats() {
+        let totalProfit = 0;
+        let wins = 0;
+        let totalTrades = trades.length;
+        let currentStreak = 0;
+        let maxStreak = 0;
+        
+        let cumulativeR = 0;
+        let peakR = 0;
+        let maxDDR = 0;
+
+        trades.forEach(trade => {
+            totalProfit += trade.net;
+
+            if (trade.net > 0) wins++;
+
+            if (trade.net < 0) {
+                currentStreak++;
+                if (currentStreak > maxStreak) maxStreak = currentStreak;
+            } else {
+                currentStreak = 0;
+            }
+            
+            let rValue = 0;
+            if (trade.net > 0) {
+                rValue = 1;
+            } else if (trade.net < 0) {
+                rValue = -1;
+            }
+            
+            cumulativeR += rValue;
+            
+            if (cumulativeR > peakR) {
+                peakR = cumulativeR;
+            }
+            let currentDD = peakR - cumulativeR;
+            if (currentDD > maxDDR) {
+                maxDDR = currentDD;
+            }
+        });
+
+        // Update UI Stats
+        statNetProfit.innerText = (totalProfit >= 0 ? '+' : '') + formatCurrency(totalProfit);
+        statNetProfit.className = 'stat-value ' + (totalProfit >= 0 ? 'text-profit' : 'text-loss');
+
+        statWinRate.innerText = totalTrades > 0 ? Math.round((wins / totalTrades) * 100) + '%' : '0%';
+        
+        statMaxDD.innerText = maxDDR.toFixed(1) + "R";
+        statMaxConsecutive.innerText = maxStreak + " Trades";
+    }
+    
+    function renderCalendar() {
+        const existingCells = calendarGrid.querySelectorAll('.calendar-day, .day-empty');
+        existingCells.forEach(cell => cell.remove());
+        
+        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        calendarTitle.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        
+        const firstDay = new Date(currentYear, currentMonth, 1);
+        const lastDay = new Date(currentYear, currentMonth + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        
+        let startDay = firstDay.getDay();
+        let startIndex;
+        
+        if (startDay === 0) {
+            startIndex = 6;
+        } else {
+            startIndex = startDay - 1;
+        }
+        
+        for (let i = 0; i < startIndex; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.classList.add('calendar-day', 'day-empty');
+            calendarGrid.appendChild(emptyDay);
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayTrades = trades.filter(t => t.date === dateString);
+            const dayNet = dayTrades.reduce((sum, t) => sum + t.net, 0);
+            
+            const dayEl = document.createElement('div');
+            dayEl.classList.add('calendar-day');
+            
+            let colorClass = 'day-neutral';
+            let tooltipText = `Net: $0`;
+            
+            if (dayTrades.length > 0) {
+                if (dayNet > 0) colorClass = 'day-profit';
+                else if (dayNet < 0) colorClass = 'day-loss';
+                
+                tooltipText = `${formatDate(dateString)}<br>`;
+                tooltipText += `Trade: ${dayTrades.length}<br>`;
+                tooltipText += `Total P/L: ${formatCurrency(dayNet)}`;
+            } else {
+                tooltipText = `${formatDate(dateString)}<br>Tidak ada trade`;
+            }
+            
+            dayEl.classList.add(colorClass);
+            dayEl.innerHTML = `
+                <div class="day-number">${day}</div>
+                ${dayTrades.length > 0 ? `
+                    <div class="day-stats">
+                        <div class="day-transaction-count">${dayTrades.length} trade</div>
+                        <div class="${dayNet >= 0 ? 'text-profit' : 'text-loss'}">${dayNet >= 0 ? '+' : ''}${formatCurrency(dayNet)}</div>
+                    </div>
+                ` : ''}
+                <div class="tooltip">${tooltipText}</div>
+            `;
+            
+            const today = new Date();
+            if (today.getDate() === day && 
+                today.getMonth() === currentMonth && 
+                today.getFullYear() === currentYear) {
+                dayEl.style.boxShadow = '0 0 0 2px var(--accent)';
+            }
+            
+            calendarGrid.appendChild(dayEl);
+        }
+    }
+    
+    function navigateCalendar(direction) {
+        if (direction === 'prev') {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+        } else if (direction === 'next') {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+        } else if (direction === 'today') {
+            const today = new Date();
+            currentMonth = today.getMonth();
+            currentYear = today.getFullYear();
+        }
+        
+        renderCalendar();
+    }
+    
+    function renderChart() {
+        let cumulative = 0;
+        const dataPoints = [0];
+        
+        trades.forEach(t => {
+            cumulative += t.net;
+            dataPoints.push(cumulative);
+        });
+
+        if (dataPoints.length < 2) {
+            chartLinePath.setAttribute('d', '');
+            chartAreaPath.setAttribute('d', '');
+            return;
+        }
+
+        const minVal = Math.min(...dataPoints, 0);
+        const maxVal = Math.max(...dataPoints, 0);
+        const range = maxVal - minVal || 1;
+
+        const xStep = 100 / (dataPoints.length - 1);
+
+        let pathD = "";
+        
+        dataPoints.forEach((val, index) => {
+            const x = index * xStep;
+            const normalizedY = (val - minVal) / range;
+            const y = 50 - (normalizedY * 50);
+
+            if (index === 0) {
+                pathD += `M ${x} ${y}`;
+            } else {
+                pathD += ` L ${x} ${y}`;
+            }
+        });
+
+        chartLinePath.setAttribute('d', pathD);
+
+        const areaD = pathD + ` L 100 50 L 0 50 Z`;
+        chartAreaPath.setAttribute('d', areaD);
+    }
+
+    // ============================================
+    // EVENT LISTENERS UNTUK RANGE SL & TP YANG DIPERBAIKI
+    // ============================================
+    
+    // Event untuk perhitungan otomatis Range SL (saat sudah selesai edit)
+    entryPriceInput.addEventListener('blur', () => {
+        const entry = parseFloat(entryPriceInput.value);
+        const sl = parseFloat(slPriceInput.value);
+        
+        // Hanya update jika kedua nilai valid
+        if (!isNaN(entry) && !isNaN(sl)) {
+            setTimeout(updateRangeSL, 50);
+        }
+    });
+    
+    slPriceInput.addEventListener('blur', () => {
+        const entry = parseFloat(entryPriceInput.value);
+        const sl = parseFloat(slPriceInput.value);
+        
+        // Hanya update jika kedua nilai valid
+        if (!isNaN(entry) && !isNaN(sl)) {
+            setTimeout(updateRangeSL, 50);
+        }
+    });
+    
+    editEntryPriceInput.addEventListener('blur', () => {
+        const entry = parseFloat(editEntryPriceInput.value);
+        const sl = parseFloat(editSlPriceInput.value);
+        
+        // Hanya update jika kedua nilai valid
+        if (!isNaN(entry) && !isNaN(sl)) {
+            setTimeout(updateEditRangeSL, 50);
+        }
+    });
+    
+    editSlPriceInput.addEventListener('blur', () => {
+        const entry = parseFloat(editEntryPriceInput.value);
+        const sl = parseFloat(editSlPriceInput.value);
+        
+        // Hanya update jika kedua nilai valid
+        if (!isNaN(entry) && !isNaN(sl)) {
+            setTimeout(updateEditRangeSL, 50);
+        }
+    });
+    
+    // TAMBAHAN: Event untuk perhitungan otomatis Range TP
+    tpPriceInput.addEventListener('blur', () => {
+        const entry = parseFloat(entryPriceInput.value);
+        const tp = parseFloat(tpPriceInput.value);
+        
+        if (!isNaN(entry) && !isNaN(tp)) {
+            setTimeout(updateRangeTP, 50);
+        }
+    });
+    
+    editTpPriceInput.addEventListener('blur', () => {
+        const entry = parseFloat(editEntryPriceInput.value);
+        const tp = parseFloat(editTpPriceInput.value);
+        
+        if (!isNaN(entry) && !isNaN(tp)) {
+            setTimeout(updateEditRangeTP, 50);
+        }
+    });
+    
+    // Event untuk editing manual Range SL dengan tracking typing
+    rangeSLInput.addEventListener('input', function(e) {
+        const entry = parseFloat(entryPriceInput.value);
+        const sl = parseFloat(slPriceInput.value);
+        
+        // Hanya validasi jika entry dan SL sudah valid
+        if (!isNaN(entry) && !isNaN(sl)) {
+            handleTypingStart(false, false);
+            debounceTyping(() => {
+                // Saat user berhenti mengetik, validasi
+                const isValid = validateRangeSL(this.value, false);
+                showRangeSLWarning(!isValid);
+            }, false, false);
+        } else {
+            // Jika entry atau SL belum valid, sembunyikan peringatan
+            showRangeSLWarning(false);
+        }
+    });
+    
+    editRangeSLInput.addEventListener('input', function(e) {
+        const entry = parseFloat(editEntryPriceInput.value);
+        const sl = parseFloat(editSlPriceInput.value);
+        
+        // Hanya validasi jika entry dan SL sudah valid
+        if (!isNaN(entry) && !isNaN(sl)) {
+            handleTypingStart(true, false);
+            debounceTyping(() => {
+                // Saat user berhenti mengetik, validasi
+                const isValid = validateRangeSL(this.value, true);
+                showRangeSLWarning(!isValid, true);
+            }, true, false);
+        } else {
+            // Jika entry atau SL belum valid, sembunyikan peringatan
+            showRangeSLWarning(false, true);
+        }
+    });
+    
+    // TAMBAHAN: Event untuk editing manual Range TP dengan tracking typing
+    rangeTPInput.addEventListener('input', function(e) {
+        const entry = parseFloat(entryPriceInput.value);
+        const tp = parseFloat(tpPriceInput.value);
+        
+        // Hanya validasi jika entry dan TP sudah valid
+        if (!isNaN(entry) && !isNaN(tp)) {
+            handleTypingStart(false, true);
+            debounceTyping(() => {
+                // Saat user berhenti mengetik, validasi
+                const isValid = validateRangeTP(this.value, false);
+                showRangeTPWarning(!isValid);
+            }, false, true);
+        } else {
+            // Jika entry atau TP belum valid, sembunyikan peringatan
+            showRangeTPWarning(false);
+        }
+    });
+    
+    editRangeTPInput.addEventListener('input', function(e) {
+        const entry = parseFloat(editEntryPriceInput.value);
+        const tp = parseFloat(editTpPriceInput.value);
+        
+        // Hanya validasi jika entry dan TP sudah valid
+        if (!isNaN(entry) && !isNaN(tp)) {
+            handleTypingStart(true, true);
+            debounceTyping(() => {
+                // Saat user berhenti mengetik, validasi
+                const isValid = validateRangeTP(this.value, true);
+                showRangeTPWarning(!isValid, true);
+            }, true, true);
+        } else {
+            // Jika entry atau TP belum valid, sembunyikan peringatan
+            showRangeTPWarning(false, true);
+        }
+    });
+    
+    // Event untuk blur Range SL (saat user berpindah field)
+    rangeSLInput.addEventListener('blur', function(e) {
+        handleTypingEnd(false, false);
+        const entry = parseFloat(entryPriceInput.value);
+        const sl = parseFloat(slPriceInput.value);
+        
+        if (!isNaN(entry) && !isNaN(sl) && this.value.trim() !== '') {
+            let formattedValue = formatRangeSL(this.value, entry, sl);
+            
+            // PERBAIKAN: Hanya tambahkan "pips" jika bukan 0 dan belum ada "pips" atau "point"
+            if (formattedValue !== '0' && 
+                !formattedValue.toLowerCase().includes('pip') && 
+                !formattedValue.toLowerCase().includes('point')) {
+                formattedValue += ' pips';
+            }
+            
+            this.value = formattedValue;
+            
+            // Validasi setelah format
+            const isValid = validateRangeSL(this.value, false);
+            showRangeSLWarning(!isValid);
+        }
+    });
+    
+    editRangeSLInput.addEventListener('blur', function(e) {
+        handleTypingEnd(true, false);
+        const entry = parseFloat(editEntryPriceInput.value);
+        const sl = parseFloat(editSlPriceInput.value);
+        
+        if (!isNaN(entry) && !isNaN(sl) && this.value.trim() !== '') {
+            let formattedValue = formatRangeSL(this.value, entry, sl);
+            
+            // PERBAIKAN: Hanya tambahkan "pips" jika bukan 0 dan belum ada "pips" atau "point"
+            if (formattedValue !== '0' && 
+                !formattedValue.toLowerCase().includes('pip') && 
+                !formattedValue.toLowerCase().includes('point')) {
+                formattedValue += ' pips';
+            }
+            
+            this.value = formattedValue;
+            
+            // Validasi setelah format
+            const isValid = validateRangeSL(this.value, true);
+            showRangeSLWarning(!isValid, true);
+        }
+    });
+    
+    // TAMBAHAN: Event untuk blur Range TP
+    rangeTPInput.addEventListener('blur', function(e) {
+        handleTypingEnd(false, true);
+        const entry = parseFloat(entryPriceInput.value);
+        const tp = parseFloat(tpPriceInput.value);
+        
+        if (!isNaN(entry) && !isNaN(tp) && this.value.trim() !== '') {
+            let formattedValue = formatRangeTP(this.value, entry, tp);
+            
+            if (formattedValue !== '0' && 
+                !formattedValue.toLowerCase().includes('pip') && 
+                !formattedValue.toLowerCase().includes('point')) {
+                formattedValue += ' pips';
+            }
+            
+            this.value = formattedValue;
+            
+            const isValid = validateRangeTP(this.value, false);
+            showRangeTPWarning(!isValid);
+        }
+    });
+    
+    editRangeTPInput.addEventListener('blur', function(e) {
+        handleTypingEnd(true, true);
+        const entry = parseFloat(editEntryPriceInput.value);
+        const tp = parseFloat(editTpPriceInput.value);
+        
+        if (!isNaN(entry) && !isNaN(tp) && this.value.trim() !== '') {
+            let formattedValue = formatRangeTP(this.value, entry, tp);
+            
+            if (formattedValue !== '0' && 
+                !formattedValue.toLowerCase().includes('pip') && 
+                !formattedValue.toLowerCase().includes('point')) {
+                formattedValue += ' pips';
+            }
+            
+            this.value = formattedValue;
+            
+            const isValid = validateRangeTP(this.value, true);
+            showRangeTPWarning(!isValid, true);
+        }
+    });
+    
+    // Event untuk reset Range SL (tombol reset)
+    resetRangeSLBtn.addEventListener('click', function() {
+        handleTypingEnd(false, false);
+        const entry = parseFloat(entryPriceInput.value);
+        const sl = parseFloat(slPriceInput.value);
+        if (!isNaN(entry) && !isNaN(sl)) {
+            const calculatedValue = calculateRangeSL(entry, sl);
+            // PERBAIKAN: Hanya tambahkan "pips" jika bukan 0
+            if (calculatedValue !== '0') {
+                rangeSLInput.value = calculatedValue + ' pips';
+            } else {
+                rangeSLInput.value = calculatedValue;
+            }
+            
+            // Validasi setelah reset
+            const isValid = validateRangeSL(rangeSLInput.value, false);
+            showRangeSLWarning(!isValid);
+        }
+    });
+    
+    resetEditRangeSLBtn.addEventListener('click', function() {
+        handleTypingEnd(true, false);
+        const entry = parseFloat(editEntryPriceInput.value);
+        const sl = parseFloat(editSlPriceInput.value);
+        if (!isNaN(entry) && !isNaN(sl)) {
+            const calculatedValue = calculateRangeSL(entry, sl);
+            // PERBAIKAN: Hanya tambahkan "pips" jika bukan 0
+            if (calculatedValue !== '0') {
+                editRangeSLInput.value = calculatedValue + ' pips';
+            } else {
+                editRangeSLInput.value = calculatedValue;
+            }
+            
+            // Validasi setelah reset
+            const isValid = validateRangeSL(editRangeSLInput.value, true);
+            showRangeSLWarning(!isValid, true);
+        }
+    });
+    
+    // TAMBAHAN: Event untuk reset Range TP
+    resetRangeTPBtn.addEventListener('click', function() {
+        handleTypingEnd(false, true);
+        const entry = parseFloat(entryPriceInput.value);
+        const tp = parseFloat(tpPriceInput.value);
+        if (!isNaN(entry) && !isNaN(tp)) {
+            const calculatedValue = calculateRangeTP(entry, tp);
+            if (calculatedValue !== '0') {
+                rangeTPInput.value = calculatedValue + ' pips';
+            } else {
+                rangeTPInput.value = calculatedValue;
+            }
+            
+            const isValid = validateRangeTP(rangeTPInput.value, false);
+            showRangeTPWarning(!isValid);
+        }
+    });
+    
+    resetEditRangeTPBtn.addEventListener('click', function() {
+        handleTypingEnd(true, true);
+        const entry = parseFloat(editEntryPriceInput.value);
+        const tp = parseFloat(editTpPriceInput.value);
+        if (!isNaN(entry) && !isNaN(tp)) {
+            const calculatedValue = calculateRangeTP(entry, tp);
+            if (calculatedValue !== '0') {
+                editRangeTPInput.value = calculatedValue + ' pips';
+            } else {
+                editRangeTPInput.value = calculatedValue;
+            }
+            
+            const isValid = validateRangeTP(editRangeTPInput.value, true);
+            showRangeTPWarning(!isValid, true);
+        }
+    });
+    
+    // ============================================
+    // EVENT LISTENERS UTAMA
+    // ============================================
+    
+    form.addEventListener('submit', addTrade);
+    editForm.addEventListener('submit', updateTrade);
+    newJournalForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        createNewJournal();
+    });
+    
+    prevMonthBtn.addEventListener('click', () => navigateCalendar('prev'));
+    nextMonthBtn.addEventListener('click', () => navigateCalendar('next'));
+    todayBtn.addEventListener('click', () => navigateCalendar('today'));
+    
+    journalSelect.addEventListener('change', function() {
+        changeActiveJournal(this.value);
+    });
+
+    // Close modal ketika klik di luar konten
+    editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) {
+            closeModal();
+        }
+    });
+    
+    journalManagerModal.addEventListener('click', (e) => {
+        if (e.target === journalManagerModal) {
+            closeJournalManagerModal();
+        }
+    });
+    
+    newJournalModal.addEventListener('click', (e) => {
+        if (e.target === newJournalModal) {
+            closeNewJournalModal();
+        }
+    });
+
+    // Close modal dengan Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (editModal.style.display === 'flex') closeModal();
+            if (journalManagerModal.style.display === 'flex') closeJournalManagerModal();
+            if (newJournalModal.style.display === 'flex') closeNewJournalModal();
+        }
+    });
+    
+    // Handle ketika user klik di luar form (mungkin sedang tidak mengetik)
+    document.addEventListener('click', function(e) {
+        // Jika klik bukan pada input Range SL/TP, anggap user sudah selesai mengetik
+        if (e.target !== rangeSLInput) {
+            handleTypingEnd(false, false);
+        }
+        if (e.target !== editRangeSLInput) {
+            handleTypingEnd(true, false);
+        }
+        if (e.target !== rangeTPInput) {
+            handleTypingEnd(false, true);
+        }
+        if (e.target !== editRangeTPInput) {
+            handleTypingEnd(true, true);
+        }
+    });
+    
+    // Handle escape key untuk keluar dari mode typing
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            handleTypingEnd(false, false);
+            handleTypingEnd(true, false);
+            handleTypingEnd(false, true);
+            handleTypingEnd(true, true);
+            
+            // Validasi setelah escape
+            const isValid = validateRangeSL(rangeSLInput.value, false);
+            showRangeSLWarning(!isValid);
+            
+            const editIsValid = validateRangeSL(editRangeSLInput.value, true);
+            showRangeSLWarning(!editIsValid, true);
+            
+            const tpIsValid = validateRangeTP(rangeTPInput.value, false);
+            showRangeTPWarning(!tpIsValid);
+            
+            const editTPIsValid = validateRangeTP(editRangeTPInput.value, true);
+            showRangeTPWarning(!editTPIsValid, true);
+        }
+    });
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    
+    // Set default date to today
+    document.getElementById('date').valueAsDate = new Date();
+    // Set default time to current time (format 24 jam)
+    document.getElementById('time').value = getCurrentTime();
+    
+    // Load data dan inisialisasi
+    loadJournalData();
+    
+    // Set kalender ke bulan dan tahun saat ini
+    const today = new Date();
+    currentMonth = today.getMonth();
+    currentYear = today.getFullYear();
+    renderCalendar();
+    
+    // Set initial state typing
+    window.addEventListener('load', function() {
+        // Set flag typing ke false saat awal
+        isTypingRangeSL = false;
+        isTypingEditRangeSL = false;
+        isTypingRangeTP = false;
+        isTypingEditRangeTP = false;
+        
+        // Validasi awal untuk Range SL & TP
+        setTimeout(() => {
+            const isValid = validateRangeSL(rangeSLInput.value, false);
+            showRangeSLWarning(!isValid);
+            
+            const tpIsValid = validateRangeTP(rangeTPInput.value, false);
+            showRangeTPWarning(!tpIsValid);
+        }, 500);
+    });
+</script>
+
+</body>
+</html>
