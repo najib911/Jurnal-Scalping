@@ -134,6 +134,31 @@
             border-color: #1e54e0;
         }
 
+        /* Export/Import Button */
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .import-export-btn {
+            padding: 8px 15px;
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .import-export-btn:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--accent);
+        }
+
         .card {
             background-color: var(--bg-card);
             border-radius: 8px;
@@ -174,6 +199,17 @@
             .journal-manager {
                 width: 100%;
                 justify-content: space-between;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
+            
+            .import-export-btn {
+                padding: 6px 10px;
+                font-size: 0.85rem;
             }
         }
 
@@ -1186,6 +1222,143 @@
         #time, #editTime {
             min-width: 90px;
         }
+
+        /* ============================================
+           STYLING UNTUK EXPORT/IMPORT
+           ============================================ */
+        
+        /* Import file input styling */
+        .file-input-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 15px;
+            background-color: var(--bg-dark);
+            border: 2px dashed var(--border);
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-input-label:hover {
+            border-color: var(--accent);
+            background-color: rgba(41, 98, 255, 0.05);
+        }
+
+        .file-input-label.dragover {
+            border-color: var(--profit);
+            background-color: rgba(0, 200, 83, 0.05);
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            word-break: break-all;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Import options */
+        .import-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .import-options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .import-option {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .import-option:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .import-option.selected {
+            border-color: var(--accent);
+            background-color: rgba(41, 98, 255, 0.1);
+        }
+
+        .import-option input {
+            margin-right: 8px;
+        }
+
+        /* Progress bar for import */
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: var(--bg-dark);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #4fc3f7);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Import results */
+        .import-results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            background-color: var(--bg-dark);
+            display: none;
+        }
+
+        .import-success {
+            border-left: 4px solid var(--profit);
+        }
+
+        .import-error {
+            border-left: 4px solid var(--loss);
+        }
+
+        .import-results h5 {
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .import-stats {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .import-stats div {
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 <body>
@@ -1204,6 +1377,11 @@
                 <button class="btn-journal" onclick="showJournalManager()">Kelola Jurnal</button>
                 <button class="btn-journal btn-journal-primary" onclick="showNewJournalModal()">+ Jurnal Baru</button>
             </div>
+        </div>
+        <div class="header-actions">
+            <button class="import-export-btn" onclick="showExportImport()">
+                <span style="margin-right: 5px;">📥📤</span> Backup/Restore
+            </button>
         </div>
     </header>
 
@@ -1613,6 +1791,91 @@
     </div>
 </div>
 
+<!-- Modal Export/Import -->
+<div class="modal-overlay" id="exportImportModal">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3 class="modal-title">Backup & Restore Data</h3>
+            <button class="close-btn" onclick="closeExportImportModal()">×</button>
+        </div>
+        
+        <div class="modal-body">
+            <div style="margin-bottom: 25px;">
+                <h4 style="margin-bottom: 10px; color: var(--text-muted);">📥 Export Data</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 15px; color: var(--text-muted);">
+                    Ekspor semua data jurnal trading ke file JSON untuk backup.
+                </p>
+                <button class="btn-primary" onclick="exportData()" style="width: 100%; padding: 12px;">
+                    <span style="margin-right: 8px;">⬇️</span> Download Backup File
+                </button>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn-secondary" onclick="exportCurrentJournal()" style="flex: 1; padding: 10px;">
+                        Export Jurnal Aktif
+                    </button>
+                    <button class="btn-secondary" onclick="exportAllJournals()" style="flex: 1; padding: 10px;">
+                        Export Semua Jurnal
+                    </button>
+                </div>
+            </div>
+            
+            <div style="border-top: 1px solid var(--border); padding-top: 25px;">
+                <h4 style="margin-bottom: 10px; color: var(--text-muted);">📤 Import Data</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 15px; color: var(--text-muted);">
+                    Import data dari file backup JSON. <strong style="color: var(--warning);">Data yang ada akan ditimpa!</strong>
+                </p>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-size: 0.9rem;">
+                        Pilih file backup (.json)
+                    </label>
+                    <input type="file" id="importFile" accept=".json" 
+                           style="width: 100%; padding: 10px; background: var(--bg-dark); 
+                                  border: 2px dashed var(--border); border-radius: 4px;
+                                  color: var(--text-main); cursor: pointer;">
+                </div>
+                
+                <div style="background: rgba(41, 98, 255, 0.1); padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                    <div style="font-size: 0.9rem; margin-bottom: 10px; color: var(--accent);">
+                        ⚠️ Pilihan Import:
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <label style="flex: 1; cursor: pointer;">
+                            <input type="radio" name="importOption" value="replace" checked 
+                                   style="margin-right: 8px;">
+                            <span style="font-size: 0.9rem;">Ganti Semua Data</span>
+                        </label>
+                        <label style="flex: 1; cursor: pointer;">
+                            <input type="radio" name="importOption" value="merge" 
+                                   style="margin-right: 8px;">
+                            <span style="font-size: 0.9rem;">Gabungkan Data</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn-primary" onclick="importData()" id="importBtn"
+                        style="width: 100%; padding: 12px; background-color: var(--warning);">
+                    <span style="margin-right: 8px;">🔄</span> Proses Import Data
+                </button>
+            </div>
+            
+            <!-- Reset Data Section -->
+            <div style="border-top: 1px solid var(--border); padding-top: 25px; margin-top: 20px;">
+                <h4 style="margin-bottom: 10px; color: var(--text-muted);">🗑️ Reset Data</h4>
+                <p style="font-size: 0.9rem; margin-bottom: 15px; color: var(--text-muted);">
+                    Hapus semua data dan reset ke kondisi awal. <strong style="color: var(--loss);">Aksi ini tidak dapat dibatalkan!</strong>
+                </p>
+                <button class="btn-danger" onclick="resetAllData()" style="width: 100%; padding: 12px;">
+                    <span style="margin-right: 8px;">⚠️</span> Reset Semua Data
+                </button>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="closeExportImportModal()">Tutup</button>
+        </div>
+    </div>
+</div>
+
 <!-- Toast Notification -->
 <div id="notification">Data berhasil disimpan!</div>
 
@@ -1659,6 +1922,7 @@
     const editModal = document.getElementById('editModal');
     const journalManagerModal = document.getElementById('journalManagerModal');
     const newJournalModal = document.getElementById('newJournalModal');
+    const exportImportModal = document.getElementById('exportImportModal');
     
     // Table
     const tableBody = document.querySelector('#tradeTable tbody');
@@ -1684,6 +1948,10 @@
     const editTpPriceInput = document.getElementById('editTpPrice');
     const editRangeTPInput = document.getElementById('editRangeTP');
     const resetEditRangeTPBtn = document.getElementById('resetEditRangeTP');
+    
+    // Export/Import Elements
+    const importFileInput = document.getElementById('importFile');
+    const importBtn = document.getElementById('importBtn');
     
     // Stats Elements
     const statNetProfit = document.getElementById('statNetProfit');
@@ -2556,6 +2824,343 @@
         newJournalModal.style.display = 'none';
     }
     
+    // ============================================
+    // FUNGSI EXPORT/IMPORT DATA
+    // ============================================
+    
+    function showExportImport() {
+        // Reset form import
+        document.getElementById('importFile').value = '';
+        const importBtn = document.getElementById('importBtn');
+        importBtn.disabled = true;
+        importBtn.innerHTML = '<span style="margin-right: 8px;">🔄</span> Pilih File Terlebih Dahulu';
+        importBtn.style.backgroundColor = 'var(--text-muted)';
+        
+        // Reset import options
+        document.querySelectorAll('input[name="importOption"]').forEach(radio => {
+            if (radio.value === 'replace') radio.checked = true;
+        });
+        
+        document.getElementById('exportImportModal').style.display = 'flex';
+    }
+    
+    function closeExportImportModal() {
+        document.getElementById('exportImportModal').style.display = 'none';
+    }
+    
+    // Fungsi untuk export semua data
+    function exportData() {
+        // Tampilkan konfirmasi
+        if (!confirm('Ekspor semua data jurnal?\nFile akan didownload dengan format JSON.')) {
+            return;
+        }
+        
+        // Ambil data dari localStorage
+        const data = localStorage.getItem('tradingJournalData');
+        if (!data) {
+            showNotification('Tidak ada data untuk diexport', 'warning');
+            return;
+        }
+        
+        // Format nama file dengan tanggal
+        const date = new Date();
+        const dateStr = date.toISOString().split('T')[0];
+        const timeStr = date.getHours().toString().padStart(2, '0') + 
+                       date.getMinutes().toString().padStart(2, '0');
+        const filename = `trading-journal-backup-${dateStr}-${timeStr}.json`;
+        
+        // Buat blob dan download
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        // Tampilkan notifikasi
+        const journalCount = Object.keys(journalData.journals).length;
+        let totalTrades = 0;
+        Object.values(journalData.journals).forEach(journal => {
+            totalTrades += (journal.trades || []).length;
+        });
+        
+        showNotification(`Data berhasil diexport: ${journalCount} jurnal, ${totalTrades} transaksi`);
+        closeExportImportModal();
+    }
+    
+    // Fungsi untuk export hanya jurnal aktif
+    function exportCurrentJournal() {
+        const activeJournal = journalData.journals[journalData.activeJournalId];
+        if (!activeJournal) {
+            showNotification('Tidak ada jurnal aktif', 'warning');
+            return;
+        }
+        
+        if (!confirm(`Ekspor jurnal "${activeJournal.name}"?\nFile akan berisi data jurnal ini saja.`)) {
+            return;
+        }
+        
+        // Siapkan data hanya untuk jurnal aktif
+        const exportData = {
+            journals: {
+                [activeJournal.id]: activeJournal
+            },
+            activeJournalId: activeJournal.id
+        };
+        
+        // Format nama file
+        const date = new Date();
+        const dateStr = date.toISOString().split('T')[0];
+        const filename = `trading-journal-${activeJournal.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${dateStr}.json`;
+        
+        // Download file
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification(`Jurnal "${activeJournal.name}" berhasil diexport (${activeJournal.trades.length} transaksi)`);
+    }
+    
+    // Fungsi untuk export semua jurnal
+    function exportAllJournals() {
+        exportData(); // Sama dengan fungsi utama
+    }
+    
+    // Fungsi untuk handle file selection
+    function setupFileImport() {
+        const fileInput = document.getElementById('importFile');
+        const importBtn = document.getElementById('importBtn');
+        
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const fileName = this.files[0].name;
+                const fileSize = (this.files[0].size / 1024).toFixed(2); // KB
+                
+                // Update tombol import
+                importBtn.disabled = false;
+                importBtn.innerHTML = `<span style="margin-right: 8px;">🔄</span> Import Data (${fileName})`;
+                importBtn.style.backgroundColor = 'var(--warning)';
+                
+                // Validasi file
+                if (!fileName.toLowerCase().endsWith('.json')) {
+                    showNotification('Hanya file JSON yang didukung', 'warning');
+                    importBtn.disabled = true;
+                    importBtn.style.backgroundColor = 'var(--text-muted)';
+                } else if (fileSize > 10240) { // 10MB limit
+                    showNotification('File terlalu besar (maks 10MB)', 'warning');
+                    importBtn.disabled = true;
+                    importBtn.style.backgroundColor = 'var(--text-muted)';
+                }
+            }
+        });
+    }
+    
+    // Fungsi utama untuk import data
+    function importData() {
+        const fileInput = document.getElementById('importFile');
+        const importBtn = document.getElementById('importBtn');
+        
+        if (!fileInput.files || !fileInput.files[0]) {
+            showNotification('Pilih file terlebih dahulu', 'warning');
+            return;
+        }
+        
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                
+                // Validasi struktur data
+                if (!importedData.journals || !importedData.activeJournalId) {
+                    throw new Error('Format file tidak valid. Pastikan file berasal dari aplikasi ini.');
+                }
+                
+                // Tampilkan konfirmasi berdasarkan opsi yang dipilih
+                const importOption = document.querySelector('input[name="importOption"]:checked').value;
+                
+                let confirmMessage = '';
+                if (importOption === 'replace') {
+                    confirmMessage = `Import data akan MENGGANTI semua data yang ada.\n\n` +
+                                   `File berisi ${Object.keys(importedData.journals).length} jurnal ` +
+                                   `dengan total ${Object.values(importedData.journals).reduce((acc, j) => acc + (j.trades || []).length, 0)} transaksi.\n\n` +
+                                   `Apakah Anda yakin?`;
+                } else {
+                    confirmMessage = `Import data akan MENGGABUNGKAN dengan data yang ada.\n\n` +
+                                   `File berisi ${Object.keys(importedData.journals).length} jurnal.\n\n` +
+                                   `Apakah Anda yakin?`;
+                }
+                
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+                
+                // Proses import berdasarkan opsi
+                let finalData;
+                let message;
+                
+                if (importOption === 'replace') {
+                    // Ganti semua data
+                    finalData = importedData;
+                    message = 'Data berhasil diimport (mengganti data lama)';
+                } else {
+                    // Gabungkan data
+                    finalData = { ...journalData };
+                    
+                    // Gabungkan jurnal-jurnal
+                    Object.keys(importedData.journals).forEach(journalId => {
+                        // Jika jurnal dengan ID yang sama sudah ada, tambahkan prefix
+                        let newJournalId = journalId;
+                        let counter = 1;
+                        
+                        while (finalData.journals[newJournalId]) {
+                            newJournalId = `${journalId}-imported-${counter}`;
+                            counter++;
+                        }
+                        
+                        // Ubah ID jurnal yang diimport
+                        const importedJournal = importedData.journals[journalId];
+                        importedJournal.id = newJournalId;
+                        importedJournal.name = `${importedJournal.name} (Imported)`;
+                        
+                        // Tambahkan ke data final
+                        finalData.journals[newJournalId] = importedJournal;
+                    });
+                    
+                    // Set jurnal aktif ke jurnal aktif yang lama
+                    finalData.activeJournalId = journalData.activeJournalId;
+                    message = 'Data berhasil diimport (digabungkan dengan data lama)';
+                }
+                
+                // Simpan ke localStorage
+                localStorage.setItem('tradingJournalData', JSON.stringify(finalData));
+                
+                // Reload aplikasi
+                showNotification(message);
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Import error:', error);
+                showNotification(`Gagal import: ${error.message}`, 'error');
+            }
+        };
+        
+        reader.onerror = function() {
+            showNotification('Gagal membaca file', 'error');
+        };
+        
+        reader.readAsText(file);
+    }
+    
+    // Fungsi untuk reset semua data
+    function resetAllData() {
+        if (!confirm('⚠️ PERINGATAN KERAS!\n\nAnda akan menghapus SEMUA data:\n- Semua jurnal trading\n- Semua transaksi\n- Semua pengaturan\n\nAksi ini TIDAK DAPAT DIBATALKAN!\n\nKetik "RESET" untuk konfirmasi:')) {
+            return;
+        }
+        
+        const userInput = prompt('Ketik "RESET" (huruf besar semua) untuk konfirmasi penghapusan total:');
+        if (userInput !== 'RESET') {
+            showNotification('Reset dibatalkan', 'warning');
+            return;
+        }
+        
+        // Hapus semua data
+        localStorage.removeItem('tradingJournalData');
+        
+        // Tampilkan notifikasi dan reload
+        showNotification('Semua data telah direset', 'warning');
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    }
+    
+    // Fungsi untuk backup otomatis (opsional)
+    function createAutoBackup() {
+        // Buat backup otomatis setiap 7 hari
+        const lastBackup = localStorage.getItem('lastAutoBackup');
+        const today = new Date().toISOString().split('T')[0];
+        
+        if (!lastBackup || lastBackup !== today) {
+            const data = localStorage.getItem('tradingJournalData');
+            if (data) {
+                // Simpan backup dengan timestamp
+                const backupKey = `backup_${today}`;
+                localStorage.setItem(backupKey, data);
+                localStorage.setItem('lastAutoBackup', today);
+                
+                // Hapus backup lama (simpan hanya 5 backup terakhir)
+                const backupKeys = Object.keys(localStorage)
+                    .filter(key => key.startsWith('backup_'))
+                    .sort()
+                    .reverse();
+                
+                if (backupKeys.length > 5) {
+                    for (let i = 5; i < backupKeys.length; i++) {
+                        localStorage.removeItem(backupKeys[i]);
+                    }
+                }
+                
+                console.log('Auto-backup created:', backupKey);
+            }
+        }
+    }
+    
+    // Fungsi untuk restore dari backup otomatis
+    function restoreFromBackup() {
+        const backupKeys = Object.keys(localStorage)
+            .filter(key => key.startsWith('backup_'))
+            .sort()
+            .reverse();
+        
+        if (backupKeys.length === 0) {
+            showNotification('Tidak ada backup yang tersedia', 'warning');
+            return;
+        }
+        
+        // Tampilkan dialog pilihan backup
+        let backupList = 'Pilih backup untuk restore:\n\n';
+        backupKeys.forEach((key, index) => {
+            const date = key.replace('backup_', '');
+            backupList += `${index + 1}. ${date}\n`;
+        });
+        
+        const choice = prompt(backupList + '\nMasukkan nomor backup:');
+        const index = parseInt(choice) - 1;
+        
+        if (isNaN(index) || index < 0 || index >= backupKeys.length) {
+            showNotification('Pilihan tidak valid', 'warning');
+            return;
+        }
+        
+        const backupKey = backupKeys[index];
+        const backupData = localStorage.getItem(backupKey);
+        
+        if (!backupData) {
+            showNotification('Backup tidak ditemukan', 'error');
+            return;
+        }
+        
+        if (confirm(`Restore dari backup ${backupKey.replace('backup_', '')}?\nData saat ini akan diganti.`)) {
+            localStorage.setItem('tradingJournalData', backupData);
+            showNotification('Backup berhasil direstore');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        }
+    }
+
     // ============================================
     // MANAJEMEN TRANSAKSI DENGAN VALIDASI YANG DIPERBAIKI
     // ============================================
@@ -3752,6 +4357,12 @@
             closeNewJournalModal();
         }
     });
+    
+    exportImportModal.addEventListener('click', (e) => {
+        if (e.target === exportImportModal) {
+            closeExportImportModal();
+        }
+    });
 
     // Close modal dengan Escape key
     document.addEventListener('keydown', (e) => {
@@ -3759,6 +4370,7 @@
             if (editModal.style.display === 'flex') closeModal();
             if (journalManagerModal.style.display === 'flex') closeJournalManagerModal();
             if (newJournalModal.style.display === 'flex') closeNewJournalModal();
+            if (exportImportModal.style.display === 'flex') closeExportImportModal();
         }
     });
     
@@ -3814,6 +4426,9 @@
     // Load data dan inisialisasi
     loadJournalData();
     
+    // Set up file import handler
+    setupFileImport();
+    
     // Set kalender ke bulan dan tahun saat ini
     const today = new Date();
     currentMonth = today.getMonth();
@@ -3850,10 +4465,6 @@
     });
   }
 </script>
-
-</body>
-</html>
-
 
 </body>
 </html>
